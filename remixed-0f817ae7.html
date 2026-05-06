@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piper's Sandbox - Meta Ads Simulator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F0F2F5; color: #050505; font-size: 13px; }
+  
+  /* Top Header Bar */
+  .top-bar { background: white; border-bottom: 1px solid #DADDE1; padding: 12px 16px; display: flex; align-items: center; gap: 16px; }
+  .meta-logo { color: #0866FF; font-size: 24px; font-weight: 700; }
+  .breadcrumb { font-size: 18px; font-weight: 600; }
+  .account-selector { background: #F0F2F5; border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .account-avatar { width: 24px; height: 24px; background: #DC2626; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; }
+  .account-info { font-size: 13px; }
+  .opportunity-score { background: #F0F2F5; border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .score-circle { width: 28px; height: 28px; background: #00A656; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; }
+  .top-bar-spacer { flex: 1; }
+  .updated-text { font-size: 12px; color: #65676B; }
+  .icon-btn { background: none; border: none; padding: 8px; cursor: pointer; border-radius: 6px; color: #65676B; }
+  .icon-btn:hover { background: #F0F2F5; }
+  .discard-btn { background: none; border: 1px solid #DADDE1; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  
+  /* Main Layout */
+  .app-container { display: flex; height: calc(100vh - 49px); }
+  
+  /* Left Sidebar */
+  .sidebar { width: 56px; background: white; border-right: 1px solid #DADDE1; padding: 8px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .sidebar-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #65676B; font-size: 20px; }
+  .sidebar-icon:hover { background: #F0F2F5; }
+  .sidebar-icon.active { background: #E7F3FF; color: #0866FF; }
+  
+  /* Main Content */
+  .main-content { flex: 1; overflow-y: auto; }
+  
+  /* Page Header with Filters */
+  .page-header { background: white; padding: 12px 16px; border-bottom: 1px solid #DADDE1; }
+  .filter-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .filter-pill { background: white; border: 1px solid #DADDE1; padding: 6px 14px; border-radius: 18px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .filter-pill:hover { background: #F5F6F7; }
+  .filter-pill.active { background: #0866FF; color: white; border-color: #0866FF; }
+  .search-icon { width: 32px; height: 32px; border-radius: 50%; background: white; border: 1px solid #DADDE1; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .create-view-btn { margin-left: auto; background: white; border: 1px solid #DADDE1; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+  
+  .search-bar { width: 100%; padding: 8px 12px; border: 1px solid #DADDE1; border-radius: 6px; font-size: 13px; }
+  
+  /* Tabs */
+  .tabs-row { display: flex; gap: 2px; padding: 0 16px; background: white; border-bottom: 1px solid #DADDE1; }
+  .tab { padding: 12px 16px; cursor: pointer; font-size: 13px; font-weight: 600; color: #65676B; border-bottom: 3px solid transparent; display: flex; align-items: center; gap: 6px; }
+  .tab.active { color: #0866FF; border-bottom-color: #0866FF; }
+  .tab-spacer { flex: 1; }
+  .date-range { padding: 8px 12px; border: 1px solid #DADDE1; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; align-self: center; margin-right: 8px; }
+  
+  /* Toolbar */
+  .toolbar { background: white; padding: 8px 16px; display: flex; gap: 4px; align-items: center; border-bottom: 1px solid #DADDE1; flex-wrap: wrap; }
+  .toolbar-btn { background: white; border: 1px solid #DADDE1; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .toolbar-btn:hover { background: #F5F6F7; }
+  .toolbar-btn.primary { background: #0866FF; color: white; border-color: #0866FF; font-weight: 600; }
+  .toolbar-btn.primary:hover { background: #0654CC; }
+  .toolbar-spacer { flex: 1; }
+  
+  /* Data Table */
+  .data-table { background: white; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: #F5F6F7; }
+  th { padding: 10px 12px; text-align: left; font-weight: 600; font-size: 12px; color: #65676B; border-bottom: 1px solid #DADDE1; white-space: nowrap; }
+  th.numeric { text-align: right; }
+  td { padding: 12px; border-bottom: 1px solid #E4E6EB; vertical-align: middle; font-size: 13px; }
+  td.numeric { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.selected { background: #E7F3FF; }
+  tr:hover { background: #F5F6F7; cursor: pointer; }
+  tr.selected:hover { background: #E7F3FF; }
+  
+  /* Toggle Switch */
+  .toggle { width: 36px; height: 20px; background: #BCC0C4; border-radius: 10px; position: relative; cursor: pointer; transition: background 0.2s; }
+  .toggle.on { background: #00A656; }
+  .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: left 0.2s; }
+  .toggle.on::after { left: 18px; }
+  
+  /* Checkbox */
+  .checkbox { width: 18px; height: 18px; border: 1.5px solid #BCC0C4; border-radius: 3px; cursor: pointer; display: flex; align-items: center; justify-content: center; background: white; }
+  .checkbox.checked { background: #0866FF; border-color: #0866FF; color: white; font-size: 12px; }
+  
+  /* Campaign name styling */
+  .campaign-name { color: #0866FF; font-weight: 500; }
+  .campaign-name:hover { text-decoration: underline; }
+  
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal { background: white; border-radius: 12px; width: 100%; max-width: 900px; height: 90vh; max-height: 720px; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+  .modal-header { padding: 16px 20px; border-bottom: 1px solid #DADDE1; display: flex; justify-content: space-between; align-items: center; }
+  .modal-title { font-size: 17px; font-weight: 600; }
+  .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #65676B; padding: 4px 8px; }
+  .modal-body { flex: 1; display: flex; overflow: hidden; }
+  .modal-nav { width: 220px; background: #F5F6F7; padding: 16px 0; border-right: 1px solid #DADDE1; overflow-y: auto; }
+  .modal-nav-item { padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #65676B; }
+  .modal-nav-item.active { background: white; color: #0866FF; font-weight: 600; border-left: 3px solid #0866FF; padding-left: 13px; }
+  .modal-nav-item.done { color: #00A656; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: #DADDE1; color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .modal-nav-item.active .step-num { background: #0866FF; }
+  .modal-nav-item.done .step-num { background: #00A656; }
+  .modal-content { flex: 1; padding: 28px 32px; overflow-y: auto; }
+  .modal-footer { padding: 14px 20px; border-top: 1px solid #DADDE1; display: flex; justify-content: space-between; align-items: center; }
+  .step-counter { font-size: 13px; color: #65676B; }
+  
+  /* Form elements */
+  h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .subtitle { color: #65676B; margin-bottom: 24px; }
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .form-hint { font-size: 12px; color: #65676B; margin-top: 4px; }
+  input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 9px 12px; border: 1px solid #DADDE1; border-radius: 6px; font-size: 14px; font-family: inherit; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #0866FF; box-shadow: 0 0 0 2px #E7F3FF; }
+  
+  /* Selectable Cards */
+  .option-card { border: 2px solid #E4E6EB; border-radius: 8px; padding: 14px; margin-bottom: 8px; cursor: pointer; display: flex; gap: 12px; align-items: flex-start; background: white; }
+  .option-card:hover { border-color: #0866FF; }
+  .option-card.selected { border-color: #0866FF; background: #E7F3FF; }
+  .option-icon { font-size: 24px; flex-shrink: 0; }
+  .option-title { font-weight: 700; margin-bottom: 4px; }
+  .option-desc { font-size: 12px; color: #65676B; }
+  
+  /* Buttons */
+  .btn { padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; font-family: inherit; }
+  .btn-primary { background: #0866FF; color: white; }
+  .btn-primary:hover:not(:disabled) { background: #0654CC; }
+  .btn-primary:disabled { background: #BCC0C4; cursor: not-allowed; }
+  .btn-secondary { background: white; color: #050505; border: 1px solid #DADDE1; }
+  .btn-secondary:hover { background: #F5F6F7; }
+  .btn-success { background: #00A656; color: white; }
+  .btn-success:hover { background: #008C49; }
+  
+  /* Alerts */
+  .alert { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; }
+  .alert-info { background: #E7F3FF; color: #0866FF; border-left: 3px solid #0866FF; }
+  .alert-warning { background: #FFF4E5; color: #B8730A; border-left: 3px solid #F7B928; }
+  
+  /* Empty state */
+  .empty-state { padding: 80px 20px; text-align: center; color: #65676B; background: white; }
+  .empty-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.5; }
+  
+  /* Campaign Detail View */
+  .detail-header { background: white; padding: 16px 20px; border-bottom: 1px solid #DADDE1; }
+  .back-link { color: #0866FF; cursor: pointer; font-size: 13px; margin-bottom: 8px; display: inline-block; }
+  .back-link:hover { text-decoration: underline; }
+  .detail-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  
+  /* Stat cards */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 16px; }
+  .stat-card { background: white; border: 1px solid #DADDE1; border-radius: 8px; padding: 14px; }
+  .stat-label { font-size: 11px; color: #65676B; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
+  .stat-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-value.good { color: #00A656; }
+  .stat-value.bad { color: #F02849; }
+  
+  /* Daily breakdown table */
+  .breakdown-section { background: white; margin: 16px; border-radius: 8px; border: 1px solid #DADDE1; overflow: hidden; }
+  .breakdown-header { padding: 16px; border-bottom: 1px solid #DADDE1; }
+  .breakdown-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .phase-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .phase-learning { background: #FFF4E5; color: #B8730A; }
+  .phase-optimized { background: #E3F2E5; color: #00A656; }
+  .row-learning { background: #FFFBF0; }
+  
+  /* Piper Chatbot */
+  .piper-fab { position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #0866FF, #A78BFA); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(8,102,255,0.4); z-index: 100; border: none; font-size: 32px; transition: transform 0.2s; }
+  .piper-fab:hover { transform: scale(1.1); }
+  .piper-fab.bouncing { animation: bounce 1s infinite; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  
+  .piper-panel { position: fixed; bottom: 100px; right: 20px; width: 380px; max-width: calc(100vw - 40px); height: 540px; max-height: calc(100vh - 140px); background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); z-index: 100; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #DADDE1; }
+  .piper-header { padding: 14px 16px; background: linear-gradient(135deg, #0866FF, #A78BFA); color: white; display: flex; justify-content: space-between; align-items: center; }
+  .piper-title { display: flex; align-items: center; gap: 10px; }
+  .piper-name { font-weight: 700; font-size: 15px; }
+  .piper-status { font-size: 11px; opacity: 0.9; }
+  .piper-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #F5F6F7; }
+  .piper-msg { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.5; }
+  .piper-msg.bot { background: white; color: #050505; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .piper-msg.user { background: #0866FF; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .piper-typing { background: white; color: #65676B; align-self: flex-start; padding: 10px 14px; border-radius: 14px; border-bottom-left-radius: 4px; font-size: 13px; font-style: italic; }
+  .piper-options { display: flex; flex-direction: column; gap: 6px; align-self: flex-start; max-width: 92%; }
+  .piper-option-btn { background: white; border: 1px solid #DADDE1; border-radius: 18px; padding: 8px 14px; cursor: pointer; font-size: 12px; text-align: left; font-family: inherit; }
+  .piper-option-btn:hover { background: #E7F3FF; border-color: #0866FF; color: #0866FF; }
+  .piper-input-row { padding: 12px; border-top: 1px solid #DADDE1; display: flex; gap: 8px; background: white; }
+  .piper-input { flex: 1; padding: 9px 14px; border-radius: 18px; border: 1px solid #DADDE1; font-size: 13px; outline: none; font-family: inherit; }
+  .piper-send { background: #0866FF; color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; }
+  
+  /* Confetti */
+  @keyframes confetti-fall { to { transform: translateY(100vh) rotate(720deg); } }
+  .confetti { position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 9999; }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .modal-nav { width: 60px; }
+    .modal-nav-item span:not(.step-num) { display: none; }
+    .modal-content { padding: 16px; }
+    .piper-panel { width: 100%; right: 0; bottom: 0; max-height: 80vh; border-radius: 16px 16px 0 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="meta-logo">∞</div>
+  <div class="breadcrumb">Campaigns</div>
+  <div class="account-selector">
+    <div class="account-avatar">A</div>
+    <span class="account-info">Practice (PIPER123)</span>
+    <span style="color: #65676B; font-size: 11px;">▼</span>
+  </div>
+  <div class="opportunity-score">
+    <div class="score-circle">100</div>
+    <span style="font-size: 13px;">Opportunity score</span>
+    <span style="color: #65676B; font-size: 11px;">▼</span>
+  </div>
+  <div class="top-bar-spacer"></div>
+  <div class="updated-text">Updated just now</div>
+  <button class="icon-btn" title="Refresh">↻</button>
+  <button class="discard-btn">🗑️ Discard drafts</button>
+  <button class="icon-btn">⋯</button>
+</div>
+
+<div class="app-container">
+  <!-- Left Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-icon" title="Account overview">📊</div>
+    <div class="sidebar-icon active" title="Campaigns">▦</div>
+    <div class="sidebar-icon" title="Audiences">👥</div>
+    <div class="sidebar-icon" title="Ads library">🎨</div>
+    <div class="sidebar-icon" title="Billing">💳</div>
+    <div class="sidebar-icon" title="Events">⚡</div>
+    <div class="sidebar-icon" title="Tools">🔧</div>
+    <div class="sidebar-icon" title="More">☰</div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+  </div>
+</div>
+
+<!-- Piper Chatbot FAB -->
+<button class="piper-fab bouncing" id="piperFab" onclick="togglePiper()">🐱</button>
+
+<!-- Piper Chat Panel -->
+<div class="piper-panel" id="piperPanel" style="display: none;">
+  <div class="piper-header">
+    <div class="piper-title">
+      <div style="width:32px;height:32px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;">🐱</div>
+      <div>
+        <div class="piper-name">Piper</div>
+        <div class="piper-status">Your Meta Ads Coach</div>
+      </div>
+    </div>
+    <button style="background:none;border:none;color:white;font-size:20px;cursor:pointer;" onclick="togglePiper()">✕</button>
+  </div>
+  <div class="piper-messages" id="piperMessages"></div>
+  <div class="piper-input-row">
+    <input class="piper-input" id="piperInput" placeholder="Ask Piper anything..." onkeydown="if(event.key==='Enter') sendPiperMessage()">
+    <button class="piper-send" onclick="sendPiperMessage()">↑</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+var appState = {
+  view: 'campaigns',
+  activeTab: 'campaigns',
+  campaigns: [],
+  selectedCampaignId: null,
+  editingBudgetId: null,
+  createStep: 0,
+  draft: {
+    name: '',
+    objective: null,
+    audience: 'broad',
+    placements: ['fb_feed', 'ig_feed', 'fb_stories', 'ig_stories'],
+    budget: 35,
+    creative: { headline: '', body: '', cta: 'Learn More' },
+  },
+  piperOpen: false,
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════════
+var OBJECTIVES = [
+  { id: 'awareness', icon: '👁️', name: 'Awareness', desc: 'Reach people most likely to remember your ads' },
+  { id: 'traffic', icon: '🔗', name: 'Traffic', desc: 'Send people to a website, app, or messaging' },
+  { id: 'engagement', icon: '💬', name: 'Engagement', desc: 'Get more messages, video views, post engagement' },
+  { id: 'leads', icon: '📋', name: 'Leads', desc: 'Collect leads for your business' },
+  { id: 'sales', icon: '💰', name: 'Sales', desc: 'Find people likely to purchase your product' },
+];
+
+var AUDIENCES = [
+  { id: 'broad', name: 'Advantage+ Audience', desc: 'Let Meta find the best people', size: '8M+' },
+  { id: 'interest', name: 'Interest-based', desc: 'Target specific interests', size: '850K' },
+  { id: 'lookalike', name: 'Lookalike (1%)', desc: 'Similar to your customers', size: '2.2M' },
+  { id: 'narrow', name: 'Narrow targeting', desc: 'Very specific criteria', size: '65K' },
+];
+
+var PLACEMENTS = [
+  { id: 'fb_feed', name: 'Facebook Feed' },
+  { id: 'ig_feed', name: 'Instagram Feed' },
+  { id: 'fb_stories', name: 'Facebook Stories' },
+  { id: 'ig_stories', name: 'Instagram Stories' },
+  { id: 'fb_reels', name: 'Facebook Reels' },
+  { id: 'ig_reels', name: 'Instagram Reels' },
+];
+
+var STEPS = ['Campaign objective', 'Audience', 'Placements', 'Budget & schedule', 'Ad creative', 'Review & publish'];
+
+// ═══════════════════════════════════════════════════════════════════
+// SIMULATION ENGINE
+// ═══════════════════════════════════════════════════════════════════
+function simulateCampaign(config) {
+  var days = [];
+  var objectiveCPM = { awareness: 8, traffic: 12, engagement: 10, leads: 18, sales: 22 };
+  var audienceFactor = { broad: 1.0, interest: 1.15, lookalike: 1.3, narrow: 1.8 };
+  var baseCPM = objectiveCPM[config.objective] * audienceFactor[config.audience];
+  var baseCTR = config.objective === 'traffic' ? 0.025 : config.objective === 'sales' ? 0.015 : 0.018;
+  var baseConvRate = config.objective === 'sales' ? 0.035 : config.objective === 'leads' ? 0.042 : 0.01;
+  
+  for (var day = 1; day <= 14; day++) {
+    var learningFactor = day <= 7 ? 0.6 + (day / 7) * 0.4 : 1.0;
+    var fatigue = Math.max(0.7, 1 - (day / 30) * 0.3);
+    var spend = config.budget * (0.9 + Math.random() * 0.2);
+    var cpm = baseCPM * (0.9 + Math.random() * 0.2);
+    var impressions = Math.floor((spend / cpm) * 1000);
+    var ctr = baseCTR * learningFactor * fatigue * (0.8 + Math.random() * 0.4);
+    var clicks = Math.floor(impressions * ctr);
+    var convRate = baseConvRate * learningFactor * (0.7 + Math.random() * 0.6);
+    var conversions = Math.floor(clicks * convRate);
+    var revenue = conversions * 45;
+    
+    days.push({
+      day: day,
+      spend: Number(spend.toFixed(2)),
+      impressions: impressions,
+      clicks: clicks,
+      conversions: conversions,
+      revenue: Number(revenue.toFixed(2)),
+      ctr: Number((ctr * 100).toFixed(2)),
+      cpm: Number(cpm.toFixed(2)),
+      cpc: clicks ? Number((spend / clicks).toFixed(2)) : 0,
+      cpa: conversions ? Number((spend / conversions).toFixed(2)) : 0,
+      roas: spend ? Number((revenue / spend).toFixed(2)) : 0,
+      phase: day <= 7 ? 'learning' : 'optimized',
+    });
+  }
+  return days;
+}
+
+function calculateTotals(days) {
+  var totals = days.reduce(function(acc, d) {
+    return {
+      spend: acc.spend + d.spend,
+      impressions: acc.impressions + d.impressions,
+      clicks: acc.clicks + d.clicks,
+      conversions: acc.conversions + d.conversions,
+      revenue: acc.revenue + d.revenue,
+    };
+  }, { spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 });
+  
+  totals.ctr = totals.impressions ? (totals.clicks / totals.impressions * 100).toFixed(2) : 0;
+  totals.cpa = totals.conversions ? (totals.spend / totals.conversions).toFixed(2) : '—';
+  totals.roas = totals.spend ? (totals.revenue / totals.spend).toFixed(2) : 0;
+  totals.cpc = totals.clicks ? (totals.spend / totals.clicks).toFixed(2) : '—';
+  return totals;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════
+function render() {
+  var main = document.getElementById('mainContent');
+  if (appState.view === 'detail') {
+    main.innerHTML = renderCampaignDetail();
+  } else {
+    main.innerHTML = renderCampaignsView();
+  }
+}
+
+function renderCampaignsView() {
+  return '<div class="page-header">' +
+    '<div class="filter-row">' +
+    '<div class="search-icon">🔍</div>' +
+    '<div class="filter-pill active">📁 All ads</div>' +
+    '<div class="filter-pill">⚡ Actions</div>' +
+    '<div class="filter-pill">📨 Had delivery</div>' +
+    '<div class="filter-pill">▶️ Active ads</div>' +
+    '<button class="create-view-btn">Create a view</button>' +
+    '</div>' +
+    '<input class="search-bar" placeholder="Search by name, ID or metrics">' +
+    '</div>' +
+    '<div class="tabs-row">' +
+    '<div class="tab active">📁 Campaigns</div>' +
+    '<div class="tab">▦ Ad sets</div>' +
+    '<div class="tab">📄 Ads</div>' +
+    '<div class="tab-spacer"></div>' +
+    '<div class="date-range">📅 Last 30 days ▼</div>' +
+    '</div>' +
+    '<div class="toolbar">' +
+    '<button class="toolbar-btn primary" onclick="openCreate()">+ Create</button>' +
+    '<button class="toolbar-btn">📋 Duplicate</button>' +
+    '<button class="toolbar-btn">✏️ Edit</button>' +
+    '<button class="toolbar-btn">🧪 A/B test</button>' +
+    '<button class="toolbar-btn">More ▼</button>' +
+    '<div class="toolbar-spacer"></div>' +
+    '<button class="toolbar-btn">⚙ Columns ▼</button>' +
+    '<button class="toolbar-btn">≡ Breakdown ▼</button>' +
+    '<button class="toolbar-btn">📊 Reports ▼</button>' +
+    '<button class="toolbar-btn">⬇ Export ▼</button>' +
+    '</div>' +
+    (appState.campaigns.length === 0 ? renderEmptyState() : renderCampaignsTable());
+}
+
+function renderEmptyState() {
+  return '<div class="empty-state">' +
+    '<div class="empty-icon">📊</div>' +
+    '<div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #050505;">No campaigns yet</div>' +
+    '<div style="margin-bottom: 24px;">Create your first campaign to start practicing</div>' +
+    '<button class="btn btn-primary" onclick="openCreate()">+ Create campaign</button>' +
+    '</div>';
+}
+
+function renderCampaignsTable() {
+  var rows = appState.campaigns.map(function(c) {
+    return '<tr onclick="viewCampaign(\'' + c.id + '\')">' +
+      '<td onclick="event.stopPropagation()"><div class="checkbox"></div></td>' +
+      '<td onclick="event.stopPropagation()">' +
+      '<div class="toggle ' + (c.status === 'active' ? 'on' : '') + '" onclick="toggleCampaign(\'' + c.id + '\')"></div>' +
+      '</td>' +
+      '<td><span class="campaign-name">' + c.name + '</span></td>' +
+      '<td class="numeric">' + Math.floor(c.totals.clicks * 0.04) + '</td>' +
+      '<td class="numeric">' + Math.floor(c.totals.clicks * 0.01) + '</td>' +
+      '<td class="numeric">' + Math.floor(c.totals.clicks * 0.005) + '</td>' +
+      '<td class="numeric">' + Math.floor(c.totals.clicks * 0.008) + '</td>' +
+      '<td class="numeric">' + c.totals.clicks.toLocaleString() + '</td>' +
+      '<td class="numeric">' + Math.floor(c.totals.clicks * 0.02) + '</td>' +
+      '<td class="numeric">$' + c.totals.cpc + '</td>' +
+      '<td class="numeric">$' + c.totals.spend.toFixed(2) + '</td>' +
+      '<td class="numeric">$' + c.totals.cpa + '</td>' +
+      '<td class="numeric">' + c.totals.roas + 'x</td>' +
+      '<td onclick="event.stopPropagation()">' +
+      '<button class="toolbar-btn" style="padding: 4px 10px; font-size: 12px;" onclick="openEditBudget(\'' + c.id + '\')">✏️ $' + c.budget + '/d</button>' +
+      '</td>' +
+      '</tr>';
+  }).join('');
+
+  return '<div class="data-table"><table>' +
+    '<thead><tr>' +
+    '<th style="width: 40px;"><div class="checkbox"></div></th>' +
+    '<th style="width: 80px;">Off / On</th>' +
+    '<th>Campaign</th>' +
+    '<th class="numeric">Post reactions</th>' +
+    '<th class="numeric">Post comments</th>' +
+    '<th class="numeric">Post saves</th>' +
+    '<th class="numeric">Post shares</th>' +
+    '<th class="numeric">Link clicks</th>' +
+    '<th class="numeric">Facebook likes</th>' +
+    '<th class="numeric">CPC</th>' +
+    '<th class="numeric">Spent</th>' +
+    '<th class="numeric">CPA</th>' +
+    '<th class="numeric">ROAS</th>' +
+    '<th>Budget</th>' +
+    '</tr></thead>' +
+    '<tbody>' + rows + '</tbody>' +
+    '</table></div>';
+}
+
+function renderCampaignDetail() {
+  var c = appState.campaigns.find(function(x) { return x.id === appState.selectedCampaignId; });
+  if (!c) return '';
+  var t = c.totals;
+
+  var rows = c.days.map(function(d) {
+    return '<tr class="' + (d.phase === 'learning' ? 'row-learning' : '') + '">' +
+      '<td><strong>Day ' + d.day + '</strong></td>' +
+      '<td><span class="phase-pill ' + (d.phase === 'learning' ? 'phase-learning' : 'phase-optimized') + '">' +
+      (d.phase === 'learning' ? '🟡 Learning' : '✅ Optimized') + '</span></td>' +
+      '<td class="numeric">$' + d.spend + '</td>' +
+      '<td class="numeric">' + d.impressions.toLocaleString() + '</td>' +
+      '<td class="numeric">' + d.clicks + '</td>' +
+      '<td class="numeric">' + d.ctr + '%</td>' +
+      '<td class="numeric">' + d.conversions + '</td>' +
+      '<td class="numeric">' + (d.cpa ? '$' + d.cpa : '—') + '</td>' +
+      '<td class="numeric">' + (d.roas ? d.roas + 'x' : '—') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  var objName = (OBJECTIVES.find(function(o) { return o.id === c.objective; }) || {}).name || c.objective;
+
+  return '<div class="detail-header">' +
+    '<a class="back-link" onclick="backToCampaigns()">← Back to campaigns</a>' +
+    '<div class="detail-title">' + c.name + '</div>' +
+    '<div style="color: #65676B; font-size: 13px;">' + objName + ' • 14-day campaign • $' + c.budget + '/day</div>' +
+    '<div style="margin-top: 12px; display:flex; gap:8px;">' +
+    '<button class="btn btn-secondary" onclick="openEditBudget(\'' + c.id + '\')">✏️ Edit budget</button>' +
+    '<button class="btn btn-secondary" onclick="toggleCampaign(\'' + c.id + '\');render()">' + (c.status === 'active' ? '⏸ Pause' : '▶ Resume') + '</button>' +
+    '</div></div>' +
+    '<div class="stat-grid">' +
+    '<div class="stat-card"><div class="stat-label">Spent</div><div class="stat-value">$' + t.spend.toFixed(2) + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">Impressions</div><div class="stat-value">' + t.impressions.toLocaleString() + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">Clicks</div><div class="stat-value">' + t.clicks.toLocaleString() + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">CTR</div><div class="stat-value">' + t.ctr + '%</div></div>' +
+    '<div class="stat-card"><div class="stat-label">Conversions</div><div class="stat-value">' + t.conversions + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">Cost per result</div><div class="stat-value ' + (t.cpa !== '—' && parseFloat(t.cpa) < 25 ? 'good' : t.cpa !== '—' ? 'bad' : '') + '">$' + t.cpa + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">ROAS</div><div class="stat-value ' + (parseFloat(t.roas) > 2.5 ? 'good' : parseFloat(t.roas) > 1 ? '' : 'bad') + '">' + t.roas + 'x</div></div>' +
+    '</div>' +
+    '<div class="breakdown-section">' +
+    '<div class="breakdown-header">' +
+    '<div class="breakdown-title">Daily breakdown</div>' +
+    '<div style="font-size: 12px; color: #65676B; margin-top: 4px;">' +
+    '<span class="phase-pill phase-learning">🟡 Learning</span> Days 1-7 (unstable data) &nbsp;' +
+    '<span class="phase-pill phase-optimized">✅ Optimized</span> Days 8-14 (reliable data)' +
+    '</div></div>' +
+    '<table><thead><tr>' +
+    '<th>Day</th><th>Phase</th>' +
+    '<th class="numeric">Spend</th><th class="numeric">Impressions</th>' +
+    '<th class="numeric">Clicks</th><th class="numeric">CTR</th>' +
+    '<th class="numeric">Conversions</th><th class="numeric">CPA</th><th class="numeric">ROAS</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CREATE CAMPAIGN MODAL
+// ═══════════════════════════════════════════════════════════════════
+function openCreate() {
+  appState.createStep = 0;
+  appState.draft = {
+    name: '', objective: null, audience: 'broad',
+    placements: ['fb_feed', 'ig_feed', 'fb_stories', 'ig_stories'],
+    budget: 35, creative: { headline: '', body: '', cta: 'Learn More' },
+  };
+  renderCreateModal();
+  if (!appState.piperOpen) togglePiper();
+  pipeSay("Let's build your first campaign! I'll guide you through each step. Start by picking an objective. 🎯");
+}
+
+function renderCreateModal() {
+  var existing = document.getElementById('createModal');
+  if (existing) existing.remove();
+
+  var stepsHTML = STEPS.map(function(s, i) {
+    var cls = appState.createStep === i ? 'active' : appState.createStep > i ? 'done' : '';
+    var numContent = appState.createStep > i ? '✓' : (i + 1);
+    return '<div class="modal-nav-item ' + cls + '" onclick="goToStep(' + i + ')">' +
+      '<div class="step-num">' + numContent + '</div>' +
+      '<span>' + s + '</span></div>';
+  }).join('');
+
+  var footerRight = appState.createStep < STEPS.length - 1
+    ? '<button class="btn btn-primary" id="nextBtn" onclick="nextStep()" ' + (canProceed() ? '' : 'disabled') + '>Next →</button>'
+    : '<button class="btn btn-success" onclick="launchCampaign()">🚀 Publish campaign</button>';
+
+  var modal = document.createElement('div');
+  modal.id = 'createModal';
+  modal.className = 'modal-overlay';
+  modal.innerHTML =
+    '<div class="modal">' +
+    '<div class="modal-header">' +
+    '<div class="modal-title">Create campaign</div>' +
+    '<button class="modal-close" onclick="closeCreate()">✕</button>' +
+    '</div>' +
+    '<div class="modal-body">' +
+    '<div class="modal-nav">' + stepsHTML + '</div>' +
+    '<div class="modal-content">' + renderCreateStep() + '</div>' +
+    '</div>' +
+    '<div class="modal-footer">' +
+    '<button class="btn btn-secondary" onclick="' + (appState.createStep > 0 ? 'prevStep()' : 'closeCreate()') + '">' + (appState.createStep > 0 ? '← Back' : 'Cancel') + '</button>' +
+    '<div class="step-counter">Step ' + (appState.createStep + 1) + ' of ' + STEPS.length + '</div>' +
+    footerRight +
+    '</div></div>';
+  document.body.appendChild(modal);
+}
+
+function renderCreateStep() {
+  var step = appState.createStep;
+  var d = appState.draft;
+
+  if (step === 0) {
+    var objCards = OBJECTIVES.map(function(o) {
+      var sel = d.objective === o.id ? 'selected' : '';
+      return '<div class="option-card ' + sel + '" onclick="selectObjective(\'' + o.id + '\')">' +
+        '<div class="option-icon">' + o.icon + '</div>' +
+        '<div><div class="option-title">' + o.name + '</div><div class="option-desc">' + o.desc + '</div></div>' +
+        '</div>';
+    }).join('');
+    return '<h2>Choose your campaign objective</h2>' +
+      '<div class="subtitle">What do you want your campaign to achieve?</div>' +
+      '<div class="form-group"><label class="form-label">Campaign name</label>' +
+      '<input type="text" id="nameInput" value="' + d.name + '" placeholder="e.g., Holiday Sale 2024" oninput="appState.draft.name=this.value; checkNextBtn()">' +
+      '</div>' + objCards;
+  }
+
+  if (step === 1) {
+    var audCards = AUDIENCES.map(function(a) {
+      var sel = d.audience === a.id ? 'selected' : '';
+      return '<div class="option-card ' + sel + '" onclick="selectAudience(\'' + a.id + '\')">' +
+        '<div style="flex:1"><div class="option-title">' + a.name + '</div><div class="option-desc">' + a.desc + '</div></div>' +
+        '<div style="font-size:12px;color:#65676B">' + a.size + ' people</div>' +
+        '</div>';
+    }).join('');
+    return '<h2>Define your audience</h2><div class="subtitle">Who do you want to reach?</div>' + audCards;
+  }
+
+  if (step === 2) {
+    var placementItems = PLACEMENTS.map(function(p) {
+      var checked = d.placements.indexOf(p.id) > -1;
+      return '<div style="padding:12px 0;border-bottom:1px solid #E4E6EB;cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="togglePlacement(\'' + p.id + '\')">' +
+        '<div class="checkbox ' + (checked ? 'checked' : '') + '">' + (checked ? '✓' : '') + '</div>' +
+        '<div style="font-weight:500">' + p.name + '</div>' +
+        '</div>';
+    }).join('');
+    return '<h2>Choose placements</h2><div class="subtitle">Where your ads will appear</div>' +
+      '<div class="alert alert-info"><span>⚡</span><div><strong>Recommended: Advantage+ placements.</strong> Let Meta automatically show your ads where they perform best.</div></div>' +
+      placementItems;
+  }
+
+  if (step === 3) {
+    return '<h2>Budget & schedule</h2><div class="subtitle">How much to spend per day</div>' +
+      '<div class="form-group"><label class="form-label">Daily budget ($)</label>' +
+      '<input type="number" value="' + d.budget + '" min="5" oninput="appState.draft.budget=Number(this.value);document.getElementById(\'totalHint\').textContent=\'Campaign runs for 14 days • Total: $\'+(appState.draft.budget*14).toFixed(2)">' +
+      '<div class="form-hint" id="totalHint">Campaign runs for 14 days • Total: $' + (d.budget * 14).toFixed(2) + '</div>' +
+      '</div>' +
+      '<div class="alert alert-warning"><span>⚠️</span><div><strong>Learning Phase:</strong> Meta needs ~50 conversions in 7 days to optimize delivery. Days 1-7 will have unstable performance. Plan for $35+/day to exit Learning Phase reliably.</div></div>';
+  }
+
+  if (step === 4) {
+    return '<h2>Create your ad</h2><div class="subtitle">Write copy that drives action</div>' +
+      '<div class="form-group"><label class="form-label">Headline</label>' +
+      '<input type="text" id="headlineInput" value="' + d.creative.headline + '" placeholder="Get 50% off today only" maxlength="40" oninput="appState.draft.creative.headline=this.value;document.getElementById(\'hlCount\').textContent=this.value.length+\'/40\';checkNextBtn()">' +
+      '<div class="form-hint" style="text-align:right" id="hlCount">' + d.creative.headline.length + '/40</div>' +
+      '</div>' +
+      '<div class="form-group"><label class="form-label">Primary text</label>' +
+      '<textarea id="bodyInput" placeholder="Limited time offer! Shop our biggest sale of the year..." maxlength="125" rows="4" oninput="appState.draft.creative.body=this.value;document.getElementById(\'bodyCount\').textContent=this.value.length+\'/125\';checkNextBtn()">' + d.creative.body + '</textarea>' +
+      '<div class="form-hint" style="text-align:right" id="bodyCount">' + d.creative.body.length + '/125</div>' +
+      '</div>' +
+      '<div class="form-group"><label class="form-label">Call to action</label>' +
+      '<select onchange="appState.draft.creative.cta=this.value">' +
+      ['Learn More','Shop Now','Sign Up','Get Offer','Book Now'].map(function(c) {
+        return '<option ' + (d.creative.cta === c ? 'selected' : '') + '>' + c + '</option>';
+      }).join('') +
+      '</select></div>';
+  }
+
+  if (step === 5) {
+    var objName = (OBJECTIVES.find(function(o) { return o.id === d.objective; }) || {}).name || '—';
+    var audName = (AUDIENCES.find(function(a) { return a.id === d.audience; }) || {}).name || '—';
+    var reviewRows = [
+      ['Campaign name', d.name],
+      ['Objective', objName],
+      ['Audience', audName],
+      ['Placements', d.placements.length + ' selected'],
+      ['Daily budget', '$' + d.budget],
+      ['Total spend', '$' + (d.budget * 14).toFixed(2) + ' over 14 days'],
+      ['Headline', d.creative.headline],
+      ['Body', d.creative.body],
+      ['CTA', d.creative.cta],
+    ].map(function(row) {
+      return '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #E4E6EB;">' +
+        '<div style="font-size:12px;color:#65676B;margin-bottom:4px">' + row[0] + '</div>' +
+        '<div style="font-weight:600">' + (row[1] || '—') + '</div>' +
+        '</div>';
+    }).join('');
+    return '<h2>Review & publish</h2><div class="subtitle">Double-check everything before launch</div>' +
+      '<div style="background:#F5F6F7;border-radius:8px;padding:20px">' + reviewRows + '</div>';
+  }
+  return '';
+}
+
+function selectObjective(id) {
+  appState.draft.objective = id;
+  var tips = {
+    awareness: "Awareness = cheap impressions, maximum reach. Great for new brands. Best metric: CPM and frequency.",
+    traffic: "Traffic = optimizes for clicks. Good for blogs and lead magnets. Remember: clicks ≠ conversions!",
+    engagement: "Engagement = likes, comments, shares. Use this to build social proof before running sales campaigns.",
+    leads: "Leads = people fill a Meta-native form. Great for B2B, real estate, services. Follow up fast!",
+    sales: "Sales = Meta finds buyers. Best for e-commerce. Needs the most data — start with $35+/day.",
+  };
+  pipeSay(tips[id] || "Good choice!");
+  renderCreateModal();
+}
+
+function selectAudience(id) {
+  appState.draft.audience = id;
+  renderCreateModal();
+}
+
+function togglePlacement(id) {
+  var idx = appState.draft.placements.indexOf(id);
+  if (idx > -1) appState.draft.placements.splice(idx, 1);
+  else appState.draft.placements.push(id);
+  renderCreateModal();
+}
+
+function canProceed() {
+  var s = appState.createStep;
+  var d = appState.draft;
+  if (s === 0) return !!(d.objective && d.name.trim());
+  if (s === 4) return !!(d.creative.headline.trim() && d.creative.body.trim());
+  return true;
+}
+
+function checkNextBtn() {
+  var btn = document.getElementById('nextBtn');
+  if (btn) btn.disabled = !canProceed();
+}
+
+function goToStep(i) {
+  if (i <= appState.createStep) {
+    appState.createStep = i;
+    renderCreateModal();
+  }
+}
+
+function nextStep() {
+  if (!canProceed()) return;
+  appState.createStep++;
+  renderCreateModal();
+  pipeOnStepChange(appState.createStep);
+}
+
+function prevStep() {
+  appState.createStep--;
+  renderCreateModal();
+}
+
+function closeCreate() {
+  var modal = document.getElementById('createModal');
+  if (modal) modal.remove();
+}
+
+function launchCampaign() {
+  var days = simulateCampaign(appState.draft);
+  var newCampaign = {
+    id: 'c' + Date.now(),
+    name: appState.draft.name,
+    objective: appState.draft.objective,
+    audience: appState.draft.audience,
+    placements: appState.draft.placements.slice(),
+    budget: appState.draft.budget,
+    creative: { headline: appState.draft.creative.headline, body: appState.draft.creative.body, cta: appState.draft.creative.cta },
+    status: 'active',
+    days: days,
+    totals: calculateTotals(days),
+  };
+  appState.campaigns.unshift(newCampaign);
+  closeCreate();
+  render();
+  showConfetti();
+  pipeSay("🎉 Your campaign is live! Click on it in the table to see how it performed over 14 days. Check the daily breakdown to see the Learning Phase in action!");
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CAMPAIGN ACTIONS
+// ═══════════════════════════════════════════════════════════════════
+function viewCampaign(id) {
+  appState.view = 'detail';
+  appState.selectedCampaignId = id;
+  render();
+}
+
+function backToCampaigns() {
+  appState.view = 'campaigns';
+  appState.selectedCampaignId = null;
+  render();
+}
+
+function toggleCampaign(id) {
+  var c = appState.campaigns.find(function(x) { return x.id === id; });
+  if (!c) return;
+  c.status = c.status === 'active' ? 'paused' : 'active';
+  render();
+}
+
+function openEditBudget(id) {
+  appState.editingBudgetId = id;
+  var c = appState.campaigns.find(function(x) { return x.id === id; });
+  if (!c) return;
+
+  var existing = document.getElementById('editBudgetModal');
+  if (existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'editBudgetModal';
+  modal.className = 'modal-overlay';
+  modal.innerHTML =
+    '<div class="modal" style="max-width:480px;height:auto;max-height:520px;">' +
+    '<div class="modal-header"><div class="modal-title">Edit campaign budget</div>' +
+    '<button class="modal-close" onclick="closeEditBudget()">✕</button></div>' +
+    '<div style="padding:28px 32px;">' +
+    '<div style="font-weight:600;margin-bottom:6px">' + c.name + '</div>' +
+    '<div style="color:#65676B;font-size:13px;margin-bottom:24px">Changing budget by more than 20% can reset Learning Phase.</div>' +
+    '<div class="form-group"><label class="form-label">Current daily budget</label>' +
+    '<div style="font-size:32px;font-weight:700;color:#0866FF;text-align:center;margin:12px 0">$' + c.budget + '/day</div></div>' +
+    '<div class="form-group"><label class="form-label">New daily budget ($)</label>' +
+    '<input type="number" id="newBudgetInput" value="' + c.budget + '" min="5" oninput="document.getElementById(\'budgetTotalHint\').textContent=\'Total over 14 days: $\'+(Number(this.value)*14).toFixed(2)">' +
+    '<div class="form-hint" id="budgetTotalHint">Total over 14 days: $' + (c.budget * 14).toFixed(2) + '</div>' +
+    '</div>' +
+    '<div class="alert alert-warning"><span>⚠️</span><div>Small changes (under 20%) keep your Learning Phase intact.</div></div>' +
+    '</div>' +
+    '<div class="modal-footer">' +
+    '<button class="btn btn-secondary" onclick="closeEditBudget()">Cancel</button>' +
+    '<div></div>' +
+    '<button class="btn btn-primary" onclick="saveBudget()">Save & rerun simulation</button>' +
+    '</div></div>';
+  document.body.appendChild(modal);
+}
+
+function closeEditBudget() {
+  var modal = document.getElementById('editBudgetModal');
+  if (modal) modal.remove();
+  appState.editingBudgetId = null;
+}
+
+function saveBudget() {
+  var c = appState.campaigns.find(function(x) { return x.id === appState.editingBudgetId; });
+  var newBudget = Number(document.getElementById('newBudgetInput').value);
+  if (!c || !newBudget || newBudget < 5) return;
+  var oldBudget = c.budget;
+  c.budget = newBudget;
+  c.days = simulateCampaign(c);
+  c.totals = calculateTotals(c.days);
+  closeEditBudget();
+  render();
+  var change = ((newBudget - oldBudget) / oldBudget * 100).toFixed(0);
+  pipeSay('Budget updated from $' + oldBudget + '/day to $' + newBudget + '/day (' + (change > 0 ? '+' : '') + change + '%). Simulation rerun! ' + (Math.abs(change) > 20 ? 'Heads up: that change could reset Learning Phase in a real campaign!' : 'Small change — Learning Phase stays intact. ✅'));
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PIPER CHATBOT
+// ═══════════════════════════════════════════════════════════════════
+function togglePiper() {
+  appState.piperOpen = !appState.piperOpen;
+  var panel = document.getElementById('piperPanel');
+  panel.style.display = appState.piperOpen ? 'flex' : 'none';
+  document.getElementById('piperFab').classList.remove('bouncing');
+
+  if (appState.piperOpen && document.getElementById('piperMessages').children.length === 0) {
+    pipeSay("Hi! I'm Piper, your Meta Ads coach. 🐱 I'll guide you through your first campaign. Ready to start?");
+    setTimeout(function() {
+      addPiperOptions([
+        { text: "Yes, let's create my first campaign!", action: function() { openCreate(); } },
+        { text: "What is Meta Ads Manager?", action: function() { pipeSay("Meta Ads Manager is the tool used to create and manage ads on Facebook and Instagram. Marketers use it to choose audiences, set budgets, write ad copy, and track performance. This simulator lets you practice the same workflow without spending real money!"); } },
+        { text: "Tell me about Learning Phase", action: function() { pipeSay("Learning Phase is when Meta's algorithm figures out who to show your ads to. It usually takes 7 days and ~50 conversions to exit. Until then, performance is unstable. After Day 7, your data becomes much more reliable. Look for 🟡 Learning vs ✅ Optimized in the daily breakdown!"); } },
+      ]);
+    }, 800);
+  }
+}
+
+function pipeSay(text, delay) {
+  delay = delay || 600;
+  var messages = document.getElementById('piperMessages');
+  if (!messages) return;
+  var typing = document.createElement('div');
+  typing.className = 'piper-typing';
+  typing.textContent = 'Piper is typing...';
+  messages.appendChild(typing);
+  messages.scrollTop = messages.scrollHeight;
+  setTimeout(function() {
+    typing.remove();
+    var msg = document.createElement('div');
+    msg.className = 'piper-msg bot';
+    msg.textContent = text;
+    messages.appendChild(msg);
+    messages.scrollTop = messages.scrollHeight;
+  }, delay);
+}
+
+function addPiperUserMsg(text) {
+  var messages = document.getElementById('piperMessages');
+  var msg = document.createElement('div');
+  msg.className = 'piper-msg user';
+  msg.textContent = text;
+  messages.appendChild(msg);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function addPiperOptions(options) {
+  var messages = document.getElementById('piperMessages');
+  var wrap = document.createElement('div');
+  wrap.className = 'piper-options';
+  options.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'piper-option-btn';
+    btn.textContent = opt.text;
+    btn.onclick = function() {
+      addPiperUserMsg(opt.text);
+      wrap.remove();
+      opt.action();
+    };
+    wrap.appendChild(btn);
+  });
+  messages.appendChild(wrap);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function sendPiperMessage() {
+  var input = document.getElementById('piperInput');
+  var text = input.value.trim();
+  if (!text) return;
+  addPiperUserMsg(text);
+  input.value = '';
+  setTimeout(function() { respondToPiper(text); }, 400);
+}
+
+function respondToPiper(text) {
+  var t = text.toLowerCase();
+  if (t.indexOf('cpa') > -1 || t.indexOf('cost per') > -1)
+    pipeSay("CPA = Cost Per Acquisition. It's how much you spend to get one conversion. Lower is better. A good CPA is under $25. If yours is high, try: 1) a bigger audience, 2) better creative, 3) a different objective.");
+  else if (t.indexOf('roas') > -1)
+    pipeSay("ROAS = Return On Ad Spend. Spend $1 and earn $3 back = 3x ROAS. Above 2x = profitable. Above 3x = great. Above 5x = crushing it! To improve: test new creative angles and refine your targeting.");
+  else if (t.indexOf('learning') > -1)
+    pipeSay("Learning Phase is Meta's algorithm exploring who to show your ads to. Lasts ~7 days, needs ~50 conversions. Don't make big changes during Learning — it resets! After Day 7, performance stabilizes. Watch for 🟡 vs ✅ in the daily breakdown.");
+  else if (t.indexOf('budget') > -1)
+    pipeSay("Budget tip: Start with $35/day minimum to give Meta enough data to exit Learning Phase. Below $20/day you'll struggle to get reliable optimization. Don't change budget by more than 20% at once — it can reset Learning Phase!");
+  else if (t.indexOf('audience') > -1 || t.indexOf('targeting') > -1)
+    pipeSay("4 audience types: 1) Advantage+ (Broad) - Meta picks, usually best, 2) Interest - specific hobbies/topics, 3) Lookalike - similar to your customers, 4) Narrow - very specific. For beginners: start Broad. For e-commerce: try Lookalike. For local: use Interest.");
+  else if (t.indexOf('creative') > -1 || t.indexOf('copy') > -1 || t.indexOf('headline') > -1)
+    pipeSay("Strong ad copy tips: 1) Hook in first 3 words, 2) Specific benefit (not just 'great product'), 3) Clear CTA, 4) Match copy to your audience's pain. Try testing 3 angles: testimonial, problem/solution, and direct offer.");
+  else if (t.indexOf('placement') > -1)
+    pipeSay("Placements = where your ad shows up. Feed (most volume), Stories (high engagement, full screen), Reels (cheap, trendy). For beginners: use Advantage+ Placements and let Meta decide. For specific creative: pick manually.");
+  else if (t.indexOf('objective') > -1)
+    pipeSay("Objective = what you want from your campaign. Awareness (just be seen), Traffic (get clicks), Engagement (likes/comments), Leads (form submissions), Sales (purchases). For e-commerce: Sales. For services: Leads. For brand: Awareness.");
+  else if (t.indexOf('hello') > -1 || t.indexOf('hi') > -1 || t.indexOf('hey') > -1)
+    pipeSay("Hey! 🐱 I'm Piper. Ask me anything about Meta Ads — campaigns, audiences, creative, budget, performance metrics. Or click 'Create campaign' to start practicing!");
+  else
+    pipeSay("Great question! Try asking about: CPA, ROAS, Learning Phase, budget, audiences, creative, or objectives. Or click '+ Create' to start your first campaign!");
+}
+
+function pipeOnStepChange(step) {
+  var tips = [
+    null,
+    "Now pick your audience! For beginners, I recommend Advantage+ (Broad) — Meta finds the best people for you. Lookalike is great if you have customer data.",
+    "Time to choose placements! Stick with Advantage+ Placements unless you have a specific reason. Meta's algorithm knows where your ads perform best.",
+    "Budget time! Important: Meta needs enough spend to exit Learning Phase. $35/day minimum is my recommendation.",
+    "Now write your ad copy. Pro tip: Hook in first 3 words. Specific benefits beat generic claims. Test multiple variations!",
+    "Final review! Double-check everything, then click Publish to see how your campaign performs over 14 days. 🚀",
+  ];
+  if (tips[step]) pipeSay(tips[step]);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════════════════
+function showConfetti() {
+  var colors = ['#0866FF', '#00A656', '#F7B928', '#A78BFA', '#F02849'];
+  for (var i = 0; i < 50; i++) {
+    var c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.top = '-20px';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animation = 'confetti-fall ' + (1 + Math.random() * 1) + 's linear forwards';
+    c.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+    document.body.appendChild(c);
+    setTimeout(function() { c.remove(); }, 2500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
