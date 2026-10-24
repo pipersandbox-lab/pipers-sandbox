@@ -5,64 +5,21 @@
 //   expiry   last valid day as YYYYMMDD, or 0 for never
 //   sig      first 12 hex chars of HMAC-SHA256(ACCESS_SECRET, "NAME|EXPIRY")
 // Codes are checked on every request, so revoking one takes effect on the next
-// deploy. New codes are made at /admin.
+// deploy. Codes are made at /admin, or emailed to buyers by
+// netlify/functions/stripe-webhook.mjs after a purchase.
 //
 // Environment variables (Netlify > Site configuration > Environment variables):
 //   ACCESS_SECRET   long random string used to sign codes (required)
 //   ADMIN_PASSWORD  password for the /admin code generator (required for /admin)
 //   REVOKED_CODES   comma-separated names or full codes to block (optional)
 
+import { checkCode, makeCode, safeEqual } from "../lib/codes.js";
+
+export { checkCode, makeCode };
+
 const COOKIE = "ps_access";
-const SIG_LENGTH = 12;
 
 const env = (key) => (globalThis.Netlify?.env.get(key) ?? "").trim();
-
-const encoder = new TextEncoder();
-
-async function sign(secret, payload) {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const mac = new Uint8Array(await crypto.subtle.sign("HMAC", key, encoder.encode(payload)));
-  return [...mac].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, SIG_LENGTH);
-}
-
-function safeEqual(a, b) {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-}
-
-const cleanName = (name) => name.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 24);
-
-function todayStamp() {
-  return Number(new Date().toISOString().slice(0, 10).replace(/-/g, ""));
-}
-
-export async function makeCode(secret, name, expiry) {
-  const n = cleanName(name);
-  const e = expiry ? String(expiry).replace(/-/g, "") : "0";
-  if (!n || !/^(0|\d{8})$/.test(e)) return null;
-  return `${n}-${e}-${(await sign(secret, `${n}|${e}`)).toUpperCase()}`;
-}
-
-// Returns { ok: true, name } or { ok: false, reason }.
-export async function checkCode(secret, revoked, raw) {
-  const code = (raw ?? "").trim().toUpperCase();
-  const match = /^([A-Z0-9]{1,24})-(0|\d{8})-([0-9A-F]{12})$/.exec(code);
-  if (!match) return { ok: false, reason: "invalid" };
-  const [, name, expiry, sig] = match;
-  const expected = (await sign(secret, `${name}|${expiry}`)).toUpperCase();
-  if (!safeEqual(sig, expected)) return { ok: false, reason: "invalid" };
-  if (revoked.includes(name) || revoked.includes(code)) return { ok: false, reason: "revoked" };
-  if (expiry !== "0" && Number(expiry) < todayStamp()) return { ok: false, reason: "expired" };
-  return { ok: true, name, code, expiry };
-}
 
 function readCookie(request, name) {
   const header = request.headers.get("cookie") ?? "";
@@ -127,7 +84,7 @@ function lockedPage(reason, next) {
   return page(
     "Piper's Sandbox - Access",
     `<h1>Piper's Sandbox</h1>
-<p>This simulator is for enrolled students. Enter the personal access code you were given.</p>
+<p>Enter the personal access code from your purchase email.</p>
 ${error}
 <form method="POST" action="/unlock">
 <input type="hidden" name="next" value="${escapeHtml(next)}" />
@@ -172,12 +129,12 @@ async function adminPage(request, secret) {
   return page(
     "Admin - Access codes",
     `<h1>Make an access code</h1>
-<p>Create one code per student. You can switch a code off later by adding its name or code to REVOKED_CODES in Netlify.</p>
+<p>Create one code per customer. You can switch a code off later by adding its name or code to REVOKED_CODES in Netlify.</p>
 ${error ? `<div class="error">${error}</div>` : ""}
 <form method="POST" action="/admin">
 <label for="password">Admin password</label>
 <input id="password" name="password" type="password" required />
-<label for="name">Student name (letters and numbers, must be unique)</label>
+<label for="name">Customer name (letters and numbers, must be unique)</label>
 <input id="name" name="name" value="${escapeHtml(name)}" placeholder="MARIA" required />
 <label for="expiry">Expires after (leave empty for never)</label>
 <input id="expiry" name="expiry" type="date" value="${escapeHtml(expiry)}" />
@@ -212,7 +169,7 @@ export default async (request, context) => {
     });
   }
 
-  // A shared link like /?code=... logs the student in, then drops the code from the address bar.
+  // A shared link like /?code=... signs the buyer in, then drops the code from the address bar.
   const fromQuery = url.searchParams.get("code");
   if (fromQuery) {
     url.searchParams.delete("code");
@@ -239,4 +196,4 @@ export default async (request, context) => {
   return lockedPage(null, url.pathname + url.search);
 };
 
-export const config = { path: "/*" };
+export const config = { path: "/*", excludedPath: ["/stripe-webhook"] };

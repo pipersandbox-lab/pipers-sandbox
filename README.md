@@ -1,6 +1,6 @@
 # Piper's Sandbox
 
-Meta Ads simulator. Pages live in `public/`; every page is locked behind a personal access code by `netlify/edge-functions/access-gate.js`.
+Meta Ads simulator. Pages live in `public/`; every page is locked behind a personal access code by `netlify/edge-functions/access-gate.js`. Buyers get their code by email after paying, via `netlify/functions/stripe-webhook.mjs`.
 
 ## One-time setup on Netlify
 
@@ -13,9 +13,21 @@ The access check runs on Netlify's servers, which drag-and-drop deploys can't do
    - `REVOKED_CODES` (optional): names or full codes to switch off, separated by commas, such as `MARIA, JO-0-6AAB8B7261B7`.
 3. Go to **Deploys > Trigger deploy**. After changing an environment variable, deploy again so the change takes effect.
 
-## Giving a student access
+## Automatic codes for buyers (Stan Store + Stripe)
 
-1. Go to `https://<your-site>/admin`, enter the admin password, the student's name, and an optional expiry date.
-2. Send the student the link it gives you, such as `https://<your-site>/?code=MARIA-20271231-XXXXXXXXXXXX`. Opening the link signs them in on that browser. They can also type the code on the lock screen.
+1. Sign up at resend.com, add and verify your domain, and create an API key.
+2. In Stripe (live mode), go to **Developers > Webhooks** and add an endpoint: `https://<your-site>/stripe-webhook`, event `charge.succeeded`. Copy its signing secret (`whsec_...`).
+3. Add these Netlify environment variables, then redeploy:
+   - `STRIPE_WEBHOOK_SECRET`: the `whsec_...` signing secret.
+   - `RESEND_API_KEY`: the Resend API key.
+   - `EMAIL_FROM`: the sender, such as `Piper's Sandbox <access@yourdomain.com>` (must use your verified domain).
+   - `PRODUCT_MATCH` (optional): text found in the simulator payment's description in Stripe, so other products don't get codes.
+   - `ACCESS_DAYS` (optional): how many days a code works. Leave it out for lifetime access.
+4. Make a real purchase, then refund it. Netlify's function logs (**Logs > Functions > stripe-webhook**) show each payment's description and whether an email was sent.
 
-If a code gets shared, add the student's name to `REVOKED_CODES` and redeploy. Then give the student a new code with a different name, such as `MARIA2`.
+## Giving someone access by hand
+
+1. Go to `https://<your-site>/admin`, enter the admin password, the customer's name, and an optional expiry date.
+2. Send them the link it gives you, such as `https://<your-site>/?code=MARIA-20271231-XXXXXXXXXXXX`. Opening the link signs them in on that browser. They can also type the code on the lock screen.
+
+If a code gets shared, add the customer's name to `REVOKED_CODES` and redeploy. Then give them a new code with a different name, such as `MARIA2`.
