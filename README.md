@@ -1,0 +1,21 @@
+# Piper's Sandbox
+
+Meta Ads simulator. Pages live in `public/`; every page is locked behind a personal access code by `netlify/edge-functions/access-gate.js`.
+
+## One-time setup on Netlify
+
+The access check runs on Netlify's servers, which drag-and-drop deploys can't do, so the site must deploy from this GitHub repo.
+
+1. In Netlify, open the site, then **Site configuration > Build & deploy > Link repository**, and pick `pipersandbox-lab/pipers-sandbox`. Leave the build command empty. The publish directory comes from `netlify.toml`.
+2. In **Site configuration > Environment variables**, add:
+   - `ACCESS_SECRET`: a long random string, such as 40 random letters and numbers. Keep it private. Changing it switches off every existing code.
+   - `ADMIN_PASSWORD`: the password for the code generator page.
+   - `REVOKED_CODES` (optional): names or full codes to switch off, separated by commas, such as `MARIA, JO-0-6AAB8B7261B7`.
+3. Go to **Deploys > Trigger deploy**. After changing an environment variable, deploy again so the change takes effect.
+
+## Giving a student access
+
+1. Go to `https://<your-site>/admin`, enter the admin password, the student's name, and an optional expiry date.
+2. Send the student the link it gives you, such as `https://<your-site>/?code=MARIA-20271231-XXXXXXXXXXXX`. Opening the link signs them in on that browser. They can also type the code on the lock screen.
+
+If a code gets shared, add the student's name to `REVOKED_CODES` and redeploy. Then give the student a new code with a different name, such as `MARIA2`.
