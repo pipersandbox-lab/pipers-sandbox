@@ -13,7 +13,7 @@
 //   ADMIN_PASSWORD  password for the /admin code generator (required for /admin)
 //   REVOKED_CODES   comma-separated names or full codes to block (optional)
 //   MAX_DEVICES     how many browsers one code can be used in (optional, default 2)
-//   STRIPE_SECRET_KEY  Stripe restricted key with Charges: Read, used by /claim
+//   STRIPE_SECRET_KEY  Stripe restricted key with Charges: Read and Customers: Read, used by /claim
 //   PRODUCT_MATCH   only payments whose description contains this text count at /claim (optional)
 //   ACCESS_DAYS     days of access from the purchase date for /claim (optional; blank = never expires)
 //
@@ -94,21 +94,33 @@ async function unlock(request, secret, revoked, raw, next) {
   return new Response(null, { status: 303, headers });
 }
 
-// Newest successful, unrefunded payment for this email, or null.
+// Newest successful, unrefunded payment for this email, or null. The buyer's
+// email can be on the charge itself or only on its Stripe customer, so customers
+// are expanded when the key is allowed to read them.
 async function findPurchase(stripeKey, email) {
   const match = env("PRODUCT_MATCH").toLowerCase();
-  let url = "https://api.stripe.com/v1/charges?limit=100";
+  let expand = "&expand[]=data.customer";
+  let after = "";
   for (let page = 0; page < 20; page++) {
+    const url = `https://api.stripe.com/v1/charges?limit=100${expand}${after}`;
     const res = await fetch(url, { headers: { authorization: `Bearer ${stripeKey}` } });
+    if (res.status === 403 && expand) {
+      console.error("access-gate: key can't read customers; matching charge emails only");
+      expand = "";
+      page--;
+      continue;
+    }
     if (!res.ok) throw new Error(`Stripe charges list failed: ${res.status}`);
     const { data, has_more } = await res.json();
     for (const c of data) {
-      const emails = [c.billing_details?.email, c.receipt_email].filter(Boolean).map((e) => e.trim().toLowerCase());
+      const emails = [c.billing_details?.email, c.receipt_email, c.customer?.email]
+        .filter((e) => typeof e === "string")
+        .map((e) => e.trim().toLowerCase());
       const text = [c.description, ...Object.values(c.metadata ?? {})].filter(Boolean).join(" ").toLowerCase();
       if (c.status === "succeeded" && !c.refunded && emails.includes(email) && (!match || text.includes(match))) return c;
     }
     if (!has_more || data.length === 0) return null;
-    url = `https://api.stripe.com/v1/charges?limit=100&starting_after=${data[data.length - 1].id}`;
+    after = `&starting_after=${data[data.length - 1].id}`;
   }
   return null;
 }
@@ -159,7 +171,10 @@ async function claim(request, secret, revoked) {
     console.error("access-gate: purchase lookup failed", err);
     return claimPage("error", email);
   }
-  if (!charge) return claimPage("notfound", email);
+  if (!charge) {
+    console.log("access-gate: no matching purchase for a claim");
+    return claimPage("notfound", email);
+  }
   return unlock(request, secret, revoked, await codeForEmail(secret, email, charge), "/");
 }
 

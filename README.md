@@ -18,7 +18,7 @@ The access check runs on Netlify's servers, which drag-and-drop deploys can't do
 
 Buyers go to `https://<your-site>/claim` and type the email they paid with. The site checks Stripe for a successful, unrefunded payment from that email and signs them in. The same email always gets the same code, so the two-browser limit still applies.
 
-1. In Stripe, go to **Developers > API keys > Create restricted key**. Give it **Charges: Read** only, and copy the key (`rk_live_...`).
+1. In Stripe, go to **Developers > API keys > Create restricted key**. Give it **Charges: Read** and **Customers: Read** only, and copy the key (`rk_live_...`).
 2. Add it in Netlify as `STRIPE_SECRET_KEY`, then redeploy. `PRODUCT_MATCH` and `ACCESS_DAYS` (below) also apply here.
 3. In Stan Store, add the claim link to the product's purchase confirmation.
 
