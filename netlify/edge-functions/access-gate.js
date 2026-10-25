@@ -12,12 +12,24 @@
 //   ACCESS_SECRET   long random string used to sign codes (required)
 //   ADMIN_PASSWORD  password for the /admin code generator (required for /admin)
 //   REVOKED_CODES   comma-separated names or full codes to block (optional)
+//   MAX_DEVICES     how many browsers one code can be used in (optional, default 2)
+//
+// Each browser gets its own random device cookie. The first MAX_DEVICES browsers
+// to use a code are remembered in Netlify Blobs; any other browser is refused
+// until the device list for that code is reset at /admin.
 
+import { getStore } from "@netlify/blobs";
 import { checkCode, makeCode, safeEqual } from "../lib/codes.js";
 
 export { checkCode, makeCode };
 
 const COOKIE = "ps_access";
+const DEVICE_COOKIE = "ps_device";
+
+let deviceStore = () => getStore({ name: "devices", consistency: "strong" });
+export const setDeviceStoreForTests = (store) => {
+  deviceStore = () => store;
+};
 
 const env = (key) => (globalThis.Netlify?.env.get(key) ?? "").trim();
 
@@ -37,6 +49,42 @@ function accessCookie(code, expiry) {
     maxAge = Math.max(60, Math.floor((end - Date.now()) / 1000));
   }
   return `${COOKIE}=${encodeURIComponent(code)}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`;
+}
+
+function deviceCookie(id) {
+  return `${DEVICE_COOKIE}=${id}; Path=/; Max-Age=${60 * 60 * 24 * 400}; HttpOnly; Secure; SameSite=Lax`;
+}
+
+const maxDevices = () => Math.max(1, Number(env("MAX_DEVICES")) || 2);
+
+// Records this browser against the code. Returns false when the code is
+// already in use on MAX_DEVICES other browsers.
+async function claimDevice(code, deviceId) {
+  try {
+    const store = deviceStore();
+    const entry = (await store.get(code, { type: "json" })) ?? { devices: [] };
+    if (entry.devices.some((d) => d.id === deviceId)) return true;
+    if (entry.devices.length >= maxDevices()) return false;
+    entry.devices.push({ id: deviceId, added: new Date().toISOString() });
+    await store.setJSON(code, entry);
+    return true;
+  } catch (err) {
+    // Never lock out a paying customer because storage is briefly unavailable.
+    console.error("access-gate: device check failed", err);
+    return true;
+  }
+}
+
+// Checks the code and this browser's device slot, then signs the browser in.
+async function unlock(request, secret, revoked, raw, next) {
+  const result = await checkCode(secret, revoked, raw);
+  if (!result.ok) return lockedPage(result.reason, next);
+  const deviceId = readCookie(request, DEVICE_COOKIE) || crypto.randomUUID();
+  if (!(await claimDevice(result.code, deviceId))) return lockedPage("devices", next);
+  const headers = new Headers({ location: next, "cache-control": "no-store" });
+  headers.append("set-cookie", accessCookie(result.code, result.expiry));
+  headers.append("set-cookie", deviceCookie(deviceId));
+  return new Response(null, { status: 303, headers });
 }
 
 const escapeHtml = (s) =>
@@ -77,6 +125,7 @@ const LOCK_MESSAGES = {
   invalid: "That access code isn't valid. Check it and try again.",
   revoked: "This access code has been switched off. Contact Piper's Sandbox for help.",
   expired: "This access code has expired. Contact Piper's Sandbox to renew your access.",
+  devices: "This access code is already in use on the maximum number of browsers. Contact Piper's Sandbox if you need to switch devices.",
 };
 
 function lockedPage(reason, next) {
@@ -113,8 +162,12 @@ async function adminPage(request, secret) {
     const form = await request.formData();
     name = String(form.get("name") ?? "");
     expiry = String(form.get("expiry") ?? "");
+    const resetCode = String(form.get("reset") ?? "").trim().toUpperCase();
     if (!safeEqual(String(form.get("password") ?? ""), adminPassword)) {
       error = "Wrong admin password.";
+    } else if (resetCode) {
+      await deviceStore().delete(resetCode);
+      result = `<div class="result"><p>Devices reset for <code>${escapeHtml(resetCode)}</code>. The next ${maxDevices()} browsers to use it will be allowed.</p></div>`;
     } else {
       const code = await makeCode(secret, name, expiry);
       if (!code) {
@@ -140,7 +193,16 @@ ${error ? `<div class="error">${error}</div>` : ""}
 <input id="expiry" name="expiry" type="date" value="${escapeHtml(expiry)}" />
 <button type="submit">Make code</button>
 </form>
-${result}`,
+${result}
+<h1 style="margin-top:32px">Reset devices</h1>
+<p>Each code works in ${maxDevices()} browsers. If a customer gets a new phone or computer, reset their code here.</p>
+<form method="POST" action="/admin">
+<label for="reset-password">Admin password</label>
+<input id="reset-password" name="password" type="password" required />
+<label for="reset">Their full access code</label>
+<input id="reset" name="reset" placeholder="MARIA2215-0-XXXXXXXXXXXX" required />
+<button type="submit">Reset devices</button>
+</form>`,
     error ? 400 : 200,
   );
 }
@@ -160,31 +222,23 @@ export default async (request, context) => {
 
   if (url.pathname === "/unlock" && request.method === "POST") {
     const form = await request.formData();
-    const next = safeNext(form.get("next"));
-    const result = await checkCode(secret, revoked, form.get("code"));
-    if (!result.ok) return lockedPage(result.reason, next);
-    return new Response(null, {
-      status: 303,
-      headers: { location: next, "set-cookie": accessCookie(result.code, result.expiry), "cache-control": "no-store" },
-    });
+    return unlock(request, secret, revoked, form.get("code"), safeNext(form.get("next")));
   }
 
   // A shared link like /?code=... signs the buyer in, then drops the code from the address bar.
   const fromQuery = url.searchParams.get("code");
   if (fromQuery) {
     url.searchParams.delete("code");
-    const next = url.pathname + url.search;
-    const result = await checkCode(secret, revoked, fromQuery);
-    if (!result.ok) return lockedPage(result.reason, next);
-    return new Response(null, {
-      status: 303,
-      headers: { location: next, "set-cookie": accessCookie(result.code, result.expiry), "cache-control": "no-store" },
-    });
+    return unlock(request, secret, revoked, fromQuery, url.pathname + url.search);
   }
 
   const cookie = readCookie(request, COOKIE);
   if (cookie) {
     const result = await checkCode(secret, revoked, cookie);
+    const deviceId = readCookie(request, DEVICE_COOKIE);
+    if (result.ok && !(deviceId && (await claimDevice(result.code, deviceId)))) {
+      return lockedPage("devices", url.pathname + url.search);
+    }
     if (result.ok) {
       const response = await context.next();
       response.headers.set("cache-control", "private, no-store");

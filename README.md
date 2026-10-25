@@ -10,6 +10,7 @@ The access check runs on Netlify's servers, which drag-and-drop deploys can't do
 2. In **Site configuration > Environment variables**, add:
    - `ACCESS_SECRET`: a long random string, such as 40 random letters and numbers. Keep it private. Changing it switches off every existing code.
    - `ADMIN_PASSWORD`: the password for the code generator page.
+   - `MAX_DEVICES` (optional): how many browsers each code works in. Defaults to 2.
    - `REVOKED_CODES` (optional): names or full codes to switch off, separated by commas, such as `MARIA, JO-0-6AAB8B7261B7`.
 3. Go to **Deploys > Trigger deploy**. After changing an environment variable, deploy again so the change takes effect.
 
@@ -29,5 +30,7 @@ The access check runs on Netlify's servers, which drag-and-drop deploys can't do
 
 1. Go to `https://<your-site>/admin`, enter the admin password, the customer's name, and an optional expiry date.
 2. Send them the link it gives you, such as `https://<your-site>/?code=MARIA-20271231-XXXXXXXXXXXX`. Opening the link signs them in on that browser. They can also type the code on the lock screen.
+
+Each code works in 2 browsers (or `MAX_DEVICES`). A buyer on a new phone or computer, or who cleared their browser data, needs their devices reset: go to `/admin`, enter their full code under **Reset devices**.
 
 If a code gets shared, add the customer's name to `REVOKED_CODES` and redeploy. Then give them a new code with a different name, such as `MARIA2`.
