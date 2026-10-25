@@ -13,6 +13,13 @@
 //   ADMIN_PASSWORD  password for the /admin code generator (required for /admin)
 //   REVOKED_CODES   comma-separated names or full codes to block (optional)
 //   MAX_DEVICES     how many browsers one code can be used in (optional, default 2)
+//   STRIPE_SECRET_KEY  Stripe restricted key with Charges: Read, used by /claim
+//   PRODUCT_MATCH   only payments whose description contains this text count at /claim (optional)
+//   ACCESS_DAYS     days of access from the purchase date for /claim (optional; blank = never expires)
+//
+// /claim lets a buyer type the email they paid with. If Stripe has a successful,
+// unrefunded payment for that email, they get a code tied to that email and are
+// signed in, subject to the same device limit.
 //
 // Each browser gets its own random device cookie. The first MAX_DEVICES browsers
 // to use a code are remembered in Netlify Blobs; any other browser is refused
@@ -87,6 +94,75 @@ async function unlock(request, secret, revoked, raw, next) {
   return new Response(null, { status: 303, headers });
 }
 
+// Newest successful, unrefunded payment for this email, or null.
+async function findPurchase(stripeKey, email) {
+  const match = env("PRODUCT_MATCH").toLowerCase();
+  let url = "https://api.stripe.com/v1/charges?limit=100";
+  for (let page = 0; page < 20; page++) {
+    const res = await fetch(url, { headers: { authorization: `Bearer ${stripeKey}` } });
+    if (!res.ok) throw new Error(`Stripe charges list failed: ${res.status}`);
+    const { data, has_more } = await res.json();
+    for (const c of data) {
+      const emails = [c.billing_details?.email, c.receipt_email].filter(Boolean).map((e) => e.trim().toLowerCase());
+      const text = [c.description, ...Object.values(c.metadata ?? {})].filter(Boolean).join(" ").toLowerCase();
+      if (c.status === "succeeded" && !c.refunded && emails.includes(email) && (!match || text.includes(match))) return c;
+    }
+    if (!has_more || data.length === 0) return null;
+    url = `https://api.stripe.com/v1/charges?limit=100&starting_after=${data[data.length - 1].id}`;
+  }
+  return null;
+}
+
+// Same email always gives the same code, so a buyer can claim again on their second device.
+async function codeForEmail(secret, email, charge) {
+  const letters = email.split("@")[0].toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12) || "BUYER";
+  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email)));
+  const suffix = [...hash.slice(0, 2)].map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+  let expiry = "";
+  const days = Number(env("ACCESS_DAYS"));
+  if (days > 0) expiry = new Date((charge.created + days * 86400) * 1000).toISOString().slice(0, 10);
+  return makeCode(secret, letters + suffix, expiry);
+}
+
+const CLAIM_MESSAGES = {
+  notfound: "We couldn't find a purchase for that email. Use the same email you entered at checkout, or contact help@piperssandbox.com.",
+  error: "We couldn't check your purchase right now. Please try again in a minute.",
+  setup: "Purchase checking isn't set up yet. Please contact help@piperssandbox.com.",
+};
+
+function claimPage(reason, email = "") {
+  const error = reason ? `<div class="error">${CLAIM_MESSAGES[reason]}</div>` : "";
+  return page(
+    "Piper's Sandbox - Get access",
+    `<h1>Get your access</h1>
+<p>Enter the email you used when you bought Piper's Sandbox.</p>
+${error}
+<form method="POST" action="/claim">
+<label for="email">Purchase email</label>
+<input id="email" name="email" type="email" autocomplete="email" value="${escapeHtml(email)}" required />
+<button type="submit">Open the simulator</button>
+</form>`,
+    reason ? 403 : 200,
+  );
+}
+
+async function claim(request, secret, revoked) {
+  if (request.method !== "POST") return claimPage(null);
+  const form = await request.formData();
+  const email = String(form.get("email") ?? "").trim().toLowerCase();
+  const stripeKey = env("STRIPE_SECRET_KEY");
+  if (!stripeKey) return claimPage("setup", email);
+  let charge;
+  try {
+    charge = await findPurchase(stripeKey, email);
+  } catch (err) {
+    console.error("access-gate: purchase lookup failed", err);
+    return claimPage("error", email);
+  }
+  if (!charge) return claimPage("notfound", email);
+  return unlock(request, secret, revoked, await codeForEmail(secret, email, charge), "/");
+}
+
 const escapeHtml = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -140,7 +216,8 @@ ${error}
 <label for="code">Access code</label>
 <input id="code" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="NAME-20271231-XXXXXXXXXXXX" required />
 <button type="submit">Unlock</button>
-</form>`,
+</form>
+<p style="margin:20px 0 0;text-align:center">Bought it? <a href="/claim" style="color:#2F2F2F;font-weight:700;text-decoration:underline">Get access with your purchase email</a></p>`,
     reason ? 403 : 401,
   );
 }
@@ -219,6 +296,7 @@ export default async (request, context) => {
     .filter(Boolean);
 
   if (url.pathname === "/admin") return adminPage(request, secret);
+  if (url.pathname === "/claim") return claim(request, secret, revoked);
 
   if (url.pathname === "/unlock" && request.method === "POST") {
     const form = await request.formData();

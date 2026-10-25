@@ -14,7 +14,15 @@ The access check runs on Netlify's servers, which drag-and-drop deploys can't do
    - `REVOKED_CODES` (optional): names or full codes to switch off, separated by commas, such as `MARIA, JO-0-6AAB8B7261B7`.
 3. Go to **Deploys > Trigger deploy**. After changing an environment variable, deploy again so the change takes effect.
 
-## Automatic codes for buyers (Stan Store + Stripe)
+## Buyers claim access with their purchase email
+
+Buyers go to `https://<your-site>/claim` and type the email they paid with. The site checks Stripe for a successful, unrefunded payment from that email and signs them in. The same email always gets the same code, so the two-browser limit still applies.
+
+1. In Stripe, go to **Developers > API keys > Create restricted key**. Give it **Charges: Read** only, and copy the key (`rk_live_...`).
+2. Add it in Netlify as `STRIPE_SECRET_KEY`, then redeploy. `PRODUCT_MATCH` and `ACCESS_DAYS` (below) also apply here.
+3. In Stan Store, add the claim link to the product's purchase confirmation.
+
+## Optional: email codes automatically (Stripe webhook + Resend)
 
 1. Sign up at resend.com, add and verify your domain, and create an API key.
 2. In Stripe (live mode), go to **Developers > Webhooks** and add an endpoint: `https://<your-site>/stripe-webhook`, event `charge.succeeded`. Copy its signing secret (`whsec_...`).
