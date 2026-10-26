@@ -661,6 +661,54 @@
     .spot-ring { box-shadow: 0 0 0 3px #fff, 0 0 0 7px rgba(214,40,57,0.9); }
   }
 
+  /* Stages: the career ladder, the bank, placement and the final exam */
+  .stg-strip { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: white; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin-bottom: 10px; }
+  .stg-strip-main { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; flex-wrap: wrap; background: none; border: none; cursor: pointer; text-align: left; padding: 2px; border-radius: 8px; }
+  .stg-strip-main:hover { background: var(--bg); }
+  .stg-strip-main b { display: block; font-size: 14px; }
+  .stg-emoji { font-size: 24px; line-height: 1; }
+  .stg-kicker { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .stg-dots { display: inline-flex; gap: 4px; }
+  .stg-dots i { width: 22px; height: 6px; border-radius: 3px; background: var(--line-soft); }
+  .stg-dots i.done { background: var(--ok); }
+  .stg-dots i.cur { background: var(--brand); }
+  .stg-goalmini { font-size: 12px; font-weight: 700; color: var(--brand-dark); background: #E7F3FF; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+  .stg-bank { font-size: 13px; background: #E6F7EE; border-radius: 999px; padding: 5px 12px; white-space: nowrap; }
+  .stg-bank b { margin-left: 2px; }
+  .stg-bank span { margin-left: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+  .stg-bank.b-warn { background: #FFF4E5; color: #8A5A00; }
+  .stg-bank.b-danger, .stg-bank.b-broke { background: #FDE8EA; color: #B0102A; }
+  .stg-ladder { display: flex; align-items: flex-start; gap: 0; margin: 10px 0 12px; }
+  .stg-rung { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+  .stg-rung span { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--bg); border: 2px solid var(--line); }
+  .stg-rung small { font-size: 10.5px; line-height: 1.2; color: var(--muted); font-weight: 600; }
+  .stg-rung.done span { background: var(--ok); border-color: var(--ok); color: white; font-weight: 800; }
+  .stg-rung.cur span { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(8, 102, 255, 0.15); background: white; }
+  .stg-rung.cur small { color: var(--text); font-weight: 800; }
+  .stg-link { flex: 0 0 10px; height: 2px; background: var(--line); margin-top: 18px; }
+  .stg-pick { background: #E7F3FF; border-radius: 12px; padding: 12px 14px; margin-top: 8px; }
+  .stg-pick h3 { margin: 2px 0 4px; font-size: 17px; }
+  .stg-pick p { line-height: 1.5; }
+  .stg-new { margin: 10px 0; line-height: 1.6; }
+  .stg-new b { display: block; margin-bottom: 2px; }
+  .stg-goal-box { background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+  .stg-goals { list-style: none; margin: 6px 0 2px; padding: 0; }
+  .stg-goals li { padding: 3px 0; color: var(--muted); }
+  .stg-goals li.ok { color: #00753C; font-weight: 600; }
+  .piper-coach .stg-goals { margin: 4px 0 10px; }
+  .stg-score { font-size: 40px; font-weight: 800; text-align: center; color: var(--bad); margin: 4px 0 8px; }
+  .stg-score.pass { color: var(--ok); }
+  .stg-miss { border-left: 3px solid var(--warn); padding: 6px 10px; margin: 8px 0; line-height: 1.45; }
+  .stg-miss div { margin-top: 3px; }
+  .stg-cert { text-align: center; border: 3px double var(--piper); border-radius: 16px; padding: 18px 16px; background: #FFFBF5; }
+  .stg-cert h2 { font-size: 24px; margin: 4px 0 6px; }
+  .stg-cert p { line-height: 1.5; color: var(--muted); }
+  .stg-cert-logo { width: 64px; height: 36px; }
+  .stg-cert-stats { display: flex; justify-content: center; gap: 22px; margin: 12px 0 8px; flex-wrap: wrap; }
+  .stg-cert-stats b { display: block; font-size: 18px; }
+  .stg-cert-stats span { font-size: 11px; color: var(--muted); }
+  @media (max-width: 600px) { .stg-rung small { font-size: 9px; } .stg-dots { display: none; } }
+
 </style>
 </head>
 <body>
@@ -2199,6 +2247,387 @@ const LANG_ES = {
   'wr.usePicksHint': "¿Eres nuevo? Empieza con mis recomendaciones, lee el porqué en cada tarjeta y cambia lo que no te convenza.",
   'piper.picksUsed': "¡Listo! Puse mi recomendación en cada anuncio. Lee la razón en cada tarjeta (¡esa es la lección!), cambia lo que no te convenza y haz clic en “Correr los siguientes 7 días”. 🐾",
 };
+
+
+// ─── lang-stages.js ───
+// ═══════════════════════════════════════════════════════════════════
+// STAGES, PLACEMENT + FINAL EXAM — English and Spanish words for stages.js.
+// Merged into LANG_EN / LANG_ES so t() finds them like any other key.
+// ═══════════════════════════════════════════════════════════════════
+Object.assign(LANG_EN, {
+  'stg.1.name': 'Side Hustle', 'stg.2.name': 'Local Shop', 'stg.3.name': 'Growing Brand', 'stg.4.name': 'Scaling Operator', 'stg.5.name': 'Certification Ready',
+  'stg.stageOf': 'Stage {n} of {total}',
+  'stg.1.story': "You've got a product, $1,500 and a dream. Every dollar counts, so the first job is learning to read results and cut what isn't working.",
+  'stg.2.story': "Sales are coming in! Now you stop guessing: test one thing at a time, run weekly reviews, and give your winners more money.",
+  'stg.3.story': "You're a real brand now. Copy winners to new audiences, refresh tired ads before they burn out, and show your results like a pro.",
+  'stg.4.story': "The big leagues. Keep a bigger account profitable week after week. Fatigue, scaling and budget limits all hit at once here.",
+  'stg.5.story': "You've run a business through every stage. One step left: the final exam, built like Meta's media-buying certification.",
+  'stg.1.unlocks': "🚀 Launch campaigns · 📊 Read your results · 🔴 Pause losing ads",
+  'stg.2.unlocks': "🧪 A/B tests · 📅 Weekly reviews · 📈 Scale winners 20% at a time",
+  'stg.3.unlocks': "🧬 Copy winners to new audiences · ♻️ Refresh tired ads · 🤝 Client reports · ⏩ Run 4 weeks at once",
+  'stg.4.unlocks': "🏦 A $15,000 funding round · ⏩ Fast-forward · Keep it profitable for {weeks} weeks straight",
+  'stg.5.unlocks': "📝 The final exam: 12 real-world scenarios. Retake it as often as you like.",
+  'stg.1.who': "Brand new to ads? Perfect. We start from zero, one button at a time.",
+  'stg.2.who': "You know the basics. You'll skip the intro and start with a small account that's already running.",
+  'stg.3.who': "You know your way around. You'll take over a 3-campaign account and learn to grow it.",
+  'stg.4.who': "You think like a media buyer. You'll run a bigger account and prove you can keep it profitable.",
+  'stg.5.who': "Ready for the exam.",
+  'stg.1.goalName': 'Learn the loop', 'stg.1.goalBody': 'Launch, read results, make a call, and pause a loser.',
+  'stg.2.goalName': 'Make your first profitable week',
+  'stg.2.goalBody': "Run a weekly review and finish a week in profit. Pause anything below break-even and give winners a little more. Tap <b>Plan next week</b> to keep going.",
+  'stg.3.goalName': 'Grow the brand', 'stg.3.goalBody': 'Copy a winner, refresh a tired ad, beat the Scale Lab challenge, and make a client report.',
+  'stg.4.goalName': 'Run it like a pro',
+  'stg.4.goalBody': "Stay profitable for <b>{weeks} weeks in a row</b> while spending <b>${spend}+ a week</b>. That's harder than it sounds: ads get tired, and costs rise as you scale. Refresh before frequency hits 3, scale 20% at a time, and pause losers fast. Use ⏩ <b>Run 4 weeks</b> when things are steady.",
+  'stg.5.goalName': 'Pass the final exam',
+  'stg.5.goalBody': "12 scenario questions in the style of Meta's media-buying exam. Get 9 right to graduate. No time limit, and you can retake it.",
+  'stg.goal.profitWeek': 'Finish a week in profit',
+  'stg.goal.streak': '{of} profitable weeks in a row at ${spend}+/week ({n}/{of})',
+  'stg.goal.exam': 'Pass the final exam ({pass}/{total})',
+  'stg.goalTitle': 'Stage goal', 'stg.goalProgress': 'Goal {done}/{total}',
+  'stg.newTools': "What you'll do here", 'stg.letsGo': "Let's go",
+  'stg.up.title': 'You outgrew {from}!', 'stg.place.title': 'You start at {stage}',
+  'stg.fundUp': 'Funding round: +{fund}. Your bank is now <b>{cash}</b>.',
+  'stg.fundStart': 'Starting bank: <b>{cash}</b>. Profit adds to it, losses come out of it.',
+  'stg.xp.up': 'Reached {stage}', 'stg.xp.grad': 'Graduated!',
+  'stg.planWeek': 'Plan next week',
+  'stg.bank': 'Bank', 'stg.bank.hint': "Your business's cash: funding plus all profit, minus all losses. Practice money, so no real money is spent.",
+  'stg.bank.warn': 'Running low', 'stg.bank.danger': 'Almost broke', 'stg.bank.broke': 'Out of cash',
+  'stg.bank.warn.say': "Heads up: your bank is down to {cash}. Check for campaigns below break-even and pause them before they eat more cash.",
+  'stg.bank.danger.say': "Your bank is almost empty ({cash})! Pause losers now and skip budget increases until you're back in profit.",
+  'stg.bank.plan': 'This plan could spend about <b>{spend}</b> this week, and your bank has <b>{cash}</b>. Pause losers or hold budgets steady so you don\'t run out.',
+  'stg.rescue.title': 'You ran out of cash',
+  'stg.rescue.body': "Your bank hit {cash}. In real life this is where many small businesses close. Here, you get a second chance: I'll float you {grant} so you can keep learning.",
+  'stg.rescue.tips': "Before the next week: pause every campaign below break-even ROAS, don't raise budgets on anything that isn't a clear winner, and refresh ads with frequency above 3.",
+  'stg.rescue.ok': 'Take the {grant} and keep going', 'stg.rescue.after': "Fresh start! Let's open the weekly review and cut the losers first.",
+  'stg.rescue.count': 'Rescues used: {n}. That\'s fine: every pro has had a rough month.',
+  'stg.graduated': 'Graduated',
+  'stg.launch.title': 'That could empty your bank',
+  'stg.launch.body': "This campaign's first {days}-day sample could spend about <b>{cost}</b>, and your bank has <b>{cash}</b>. Most pros start small and scale what works. Try about <b>${safe}/day</b>.",
+  'stg.launch.anyway': 'Launch anyway', 'stg.launch.lower': 'Lower the budget',
+  'stg.progress.title': 'Your journey',
+  'stg.ff': 'Run 4 weeks', 'stg.ff.hint': "Applies this week's decisions, then keeps everything running for 3 more weeks.",
+  'stg.ff.note': "Fast-forwarded {n} weeks. Your decisions applied at the start; these numbers are the <b>last</b> week. Check frequency: ads get tired faster than you think.",
+  'stg.adv.title': 'Bonus round', 'stg.adv.progress': 'Bonus question {n} of {total} · Nice scores so far, so let\'s see how far you go.',
+  'stg.adv.score': 'Bonus round: {n}/{total}',
+  'stg.adv.q1': "You double a winning ad's budget overnight. What usually happens?",
+  'stg.adv.q1.a0': 'Nothing changes', 'stg.adv.q1.a1': 'It re-enters learning and results get bumpy for a few days', 'stg.adv.q1.a2': 'Meta refunds the extra spend',
+  'stg.adv.q2': 'Your product margin is 50%. What ROAS do you need to break even?',
+  'stg.adv.q2.a0': '2x', 'stg.adv.q2.a1': '0.5x', 'stg.adv.q2.a2': '5x',
+  'stg.adv.q3': 'Frequency is above 4 and CTR is falling week over week. Best move?',
+  'stg.adv.q3.a0': 'Raise the budget', 'stg.adv.q3.a1': 'Refresh the creative', 'stg.adv.q3.a2': 'Narrow the audience',
+  'stg.adv.q4': 'A lookalike audience is built from…',
+  'stg.adv.q4.a0': 'Random accounts', 'stg.adv.q4.a1': 'A source audience, such as your customers', 'stg.adv.q4.a2': "Your competitor's followers",
+  'stg.fork.title': 'Your path', 'stg.fork.lead': "Here's the whole road, from your first ad to certification ready. Based on your answers, this is where you'll start:",
+  'stg.fork.skipped': "Here's the whole road, from your first ad to certification ready. We'll start at the beginning:",
+  'stg.fork.youStart': 'You start at', 'stg.fork.fromStart': 'Start from Stage 1 instead', 'stg.fork.go': 'Start at {stage}',
+  'stg.fork.testOut': "Perfect bonus round! You can also try the final exam early from Piper's card. Pass it and you graduate right away.",
+  'stg.place.say': "Welcome to {stage}! I set you up with a small account that's already running. Start by reading what's working and what isn't.",
+  'stg.seed.name': 'Coffee · {aud}', 'stg.seed.body': 'Small-batch beans, roasted fresh and shipped to your door in 2 days. Your first bag ships free.',
+  'stg.exam.start': 'Take the final exam', 'stg.exam.practice': 'Practice the exam again', 'stg.exam.testOut': 'Test out: try the final exam',
+  'stg.exam.title': 'Final exam', 'stg.exam.begin': 'Begin',
+  'stg.exam.intro': "{total} scenarios, the kind you'll see on Meta's media-buying exam. Get {pass} right to graduate. No timer, and you can retake it as often as you like. After each try I'll explain anything you missed.",
+  'stg.exam.progress': 'Question {n} of {total}', 'stg.exam.quit': 'Stop for now',
+  'stg.exam.passTitle': 'Passed again!', 'stg.exam.failTitle': 'Not yet',
+  'stg.exam.passAgain': 'Still sharp. Review anything you missed below.',
+  'stg.exam.failBody': "You need {pass} to pass. Read the explanations below. Each one is a skill you've already practiced here, and you can retake the exam right away.",
+  'stg.exam.retake': 'Retake the exam', 'stg.exam.review': 'Review what you missed', 'stg.exam.best': 'Best exam score: {s}/{total}',
+  'stg.grad.title': "You graduated!", 'stg.grad.cert': 'Certification Ready',
+  'stg.grad.certBody': 'Ran a business from Side Hustle to Scaling Operator and passed the final exam.',
+  'stg.grad.exam': 'Final exam', 'stg.grad.campaigns': 'Campaigns',
+  'stg.grad.next': "You've practiced everything the Meta Certified Media Buying Professional exam covers. Next step: book the real exam on Meta Blueprint. Piper's Sandbox prepares you for it; Meta gives the official certification.",
+  'stg.grad.keep': 'Keep playing', 'stg.grad.book': 'Book the Meta exam',
+  'stg.grad.cardTitle': "You're certification ready 🎓",
+  'stg.grad.cardBody': "You graduated! Keep running your account to stay sharp, practice the exam again, or book the real one on Meta Blueprint.",
+  'stg.grad.say': "YOU DID IT! 🎓 From your first ad to certification ready. I'm so proud of you. Go book that real exam!",
+  'badge.graduate': '🎓 Graduate',
+
+  'stg.ex.1.q': 'A new ad set is in the learning phase. About how many optimization events does it usually need in about a week to exit learning?',
+  'stg.ex.1.o0': '5', 'stg.ex.1.o1': 'About 50', 'stg.ex.1.o2': '500', 'stg.ex.1.o3': '5,000',
+  'stg.ex.1.why': 'Delivery usually needs about 50 optimization events in roughly 7 days (after launch or a significant edit) before results stabilize.',
+  'stg.ex.2.q': 'Which change is most likely to send a stable ad set back into learning?',
+  'stg.ex.2.o0': 'Raising its daily budget from $50 to $150', 'stg.ex.2.o1': 'Renaming the campaign', 'stg.ex.2.o2': 'Downloading a report', 'stg.ex.2.o3': 'Replying to a comment on the ad',
+  'stg.ex.2.why': 'Big budget jumps are significant edits that reset learning. Raise budgets about 20% at a time.',
+  'stg.ex.3.q': 'Your product margin is 40%. What ROAS do you need just to break even?',
+  'stg.ex.3.o0': '1.4x', 'stg.ex.3.o1': '4.0x', 'stg.ex.3.o2': '2.5x', 'stg.ex.3.o3': '0.4x',
+  'stg.ex.3.why': 'Break-even ROAS = 1 ÷ margin. 1 ÷ 0.40 = 2.5x.',
+  'stg.ex.4.q': "After 3 weeks, frequency is 4.5, CTR falls every week and CPA is climbing. The audience and offer haven't changed. Best next move?",
+  'stg.ex.4.o0': 'Double the budget', 'stg.ex.4.o1': 'Narrow the audience', 'stg.ex.4.o2': 'Switch the objective to Awareness', 'stg.ex.4.o3': 'Refresh the creative with new angles and visuals',
+  'stg.ex.4.why': 'High frequency with falling CTR is classic creative fatigue: the same people have seen the ad too often. New creative fixes it.',
+  'stg.ex.5.q': 'A campaign is profitable at $100/day and the client wants to scale. Lowest-risk approach?',
+  'stg.ex.5.o0': 'Raise it to $500/day today', 'stg.ex.5.o1': 'Raise it about 20% every few days, and/or copy it into a new audience', 'stg.ex.5.o2': 'Change the audience, creative and budget at once', 'stg.ex.5.o3': 'Pause it and launch a brand-new campaign',
+  'stg.ex.5.why': 'Small vertical steps avoid resetting learning, and horizontal scaling (new audiences) adds reach without overloading one audience.',
+  'stg.ex.6.q': 'What does Advantage campaign budget (CBO) do?',
+  'stg.ex.6.o0': 'Shares one campaign budget across ad sets and moves spend toward the best performers', 'stg.ex.6.o1': 'Guarantees every ad set the same spend', 'stg.ex.6.o2': 'Cuts CPM by 20% automatically', 'stg.ex.6.o3': 'Turns off any ad set that loses money',
+  'stg.ex.6.why': 'With a campaign-level budget, delivery shifts money in real time to the ad sets getting the best results.',
+  'stg.ex.7.q': 'An ad set optimizing for Purchases gets only 6 purchases a week and shows "Learning limited". What helps most?',
+  'stg.ex.7.o0': 'Edit the ad every day', 'stg.ex.7.o1': 'Split it into more ad sets', 'stg.ex.7.o2': 'Combine ad sets, or optimize for a more frequent event like Add to Cart', 'stg.ex.7.o3': 'Narrow the audience further',
+  'stg.ex.7.why': "Learning limited means not enough events. Combine budget into fewer ad sets, or pick an event that happens more often, so the system has enough data.",
+  'stg.ex.8.q': 'Ads Manager shows 42 purchases, but the store shows 31. Most likely reason?',
+  'stg.ex.8.o0': 'The Pixel is broken, so pause everything', 'stg.ex.8.o1': 'Different attribution: Meta counts conversions within its window (including view-through), and the store counts them differently', 'stg.ex.8.o2': 'Customers asked for refunds', 'stg.ex.8.o3': 'Meta charges for fake purchases',
+  'stg.ex.8.why': "Platforms use different attribution rules and windows, so their numbers rarely match exactly. Compare trends, and set clear rules with the client.",
+  'stg.ex.9.q': 'You want to know if a new headline beats your current one. Best test?',
+  'stg.ex.9.o0': 'Change the headline, image and audience together', 'stg.ex.9.o1': 'Launch the new one, pause the old one, and compare weeks', 'stg.ex.9.o2': 'Run both for one day and pick the higher CTR', 'stg.ex.9.o3': 'Change only the headline, split the audience evenly, and run until the result is confident',
+  'stg.ex.9.why': 'A clean A/B test changes one variable, splits the audience at the same time, and runs long enough to rule out luck.',
+  'stg.ex.10.q': 'A client hiring for a warehouse job wants the ad shown only to men aged 18–30 within 5 miles. What must you do?',
+  'stg.ex.10.o0': 'Use the Employment special ad category, which limits age, gender and detailed targeting', 'stg.ex.10.o1': "Run it normally, since it's their business", 'stg.ex.10.o2': 'Target the interest "men\'s fashion" instead', 'stg.ex.10.o3': 'Run it as Awareness so the rules don\'t apply',
+  'stg.ex.10.why': "Job, housing, credit and some other ads must use a special ad category. That limits targeting so ads don't discriminate.",
+  'stg.ex.11.q': "What's the main purpose of the Conversions API?",
+  'stg.ex.11.o0': 'Writing ad copy automatically', 'stg.ex.11.o1': 'Lowering CPMs', 'stg.ex.11.o2': 'Sending conversion events from your server, so measurement holds up when browser tracking is blocked', 'stg.ex.11.o3': 'Replacing the need for an ad account',
+  'stg.ex.11.why': 'The Conversions API sends events server-to-server, alongside the Pixel, to make measurement and optimization more reliable.',
+  'stg.ex.12.q': 'An ad with the headline "Are you overweight? Lose 20 lbs fast" was rejected. Best fix?',
+  'stg.ex.12.o0': 'Resubmit it unchanged until it gets approved', 'stg.ex.12.o1': 'Rewrite it without implying personal traits or promising unrealistic results, e.g. "Simple meal plans for busy weeks"', 'stg.ex.12.o2': 'Add more emojis', 'stg.ex.12.o3': 'Run it only in Stories',
+  'stg.ex.12.why': "Ad policies don't allow assuming personal traits (\"Are you overweight?\") or making unrealistic health claims. Speak to the benefit instead.",
+});
+
+Object.assign(LANG_ES, {
+  'stg.1.name': 'Proyecto Extra', 'stg.2.name': 'Tienda Local', 'stg.3.name': 'Marca en Crecimiento', 'stg.4.name': 'Operador a Escala', 'stg.5.name': 'Rumbo a la Certificación',
+  'stg.stageOf': 'Etapa {n} de {total}',
+  'stg.1.story': 'Tienes un producto, $1,500 y un sueño. Cada dólar cuenta, así que lo primero es aprender a leer resultados y cortar lo que no funciona.',
+  'stg.2.story': '¡Ya entran ventas! Ahora dejas de adivinar: pruebas una cosa a la vez, haces revisiones semanales y les das más dinero a tus ganadores.',
+  'stg.3.story': 'Ya eres una marca de verdad. Copia ganadores a nuevos públicos, renueva anuncios cansados antes de que se quemen y presenta tus resultados como profesional.',
+  'stg.4.story': 'Las grandes ligas. Mantén una cuenta más grande rentable semana tras semana. Aquí la fatiga, el escalado y los límites de presupuesto llegan todos a la vez.',
+  'stg.5.story': 'Llevaste un negocio por todas las etapas. Falta un paso: el examen final, hecho al estilo de la certificación de compra de medios de Meta.',
+  'stg.1.unlocks': '🚀 Lanzar campañas · 📊 Leer tus resultados · 🔴 Pausar anuncios que pierden',
+  'stg.2.unlocks': '🧪 Pruebas A/B · 📅 Revisiones semanales · 📈 Escalar ganadores de 20% en 20%',
+  'stg.3.unlocks': '🧬 Copiar ganadores a nuevos públicos · ♻️ Renovar anuncios cansados · 🤝 Reportes para clientes · ⏩ Correr 4 semanas de una vez',
+  'stg.4.unlocks': '🏦 Una ronda de inversión de $15,000 · ⏩ Avance rápido · Mantenerla rentable {weeks} semanas seguidas',
+  'stg.5.unlocks': '📝 El examen final: 12 situaciones reales. Repítelo cuantas veces quieras.',
+  'stg.1.who': '¿Es tu primera vez con anuncios? Perfecto. Empezamos desde cero, un botón a la vez.',
+  'stg.2.who': 'Ya sabes lo básico. Te saltas la introducción y empiezas con una cuenta pequeña que ya está corriendo.',
+  'stg.3.who': 'Ya te mueves con soltura. Tomas una cuenta con 3 campañas y aprendes a hacerla crecer.',
+  'stg.4.who': 'Piensas como media buyer. Manejarás una cuenta más grande y demostrarás que puedes mantenerla rentable.',
+  'stg.5.who': 'Preparación para el examen.',
+  'stg.1.goalName': 'Aprende el ciclo', 'stg.1.goalBody': 'Lanza, lee resultados, toma una decisión y pausa un anuncio perdedor.',
+  'stg.2.goalName': 'Logra tu primera semana rentable',
+  'stg.2.goalBody': 'Haz una revisión semanal y termina una semana con ganancia. Pausa lo que esté por debajo del punto de equilibrio y dale un poco más a los ganadores. Toca <b>Planear la próxima semana</b> para seguir.',
+  'stg.3.goalName': 'Haz crecer la marca', 'stg.3.goalBody': 'Copia un ganador, renueva un anuncio cansado, supera el reto del Scale Lab y crea un reporte para un cliente.',
+  'stg.4.goalName': 'Manéjala como profesional',
+  'stg.4.goalBody': 'Mantente rentable <b>{weeks} semanas seguidas</b> gastando <b>${spend}+ por semana</b>. Es más difícil de lo que parece: los anuncios se cansan y los costos suben al escalar. Renueva antes de que la frecuencia llegue a 3, escala de 20% en 20% y pausa rápido a los perdedores. Usa ⏩ <b>Correr 4 semanas</b> cuando todo esté estable.',
+  'stg.5.goalName': 'Aprueba el examen final',
+  'stg.5.goalBody': '12 preguntas de situaciones al estilo del examen de compra de medios de Meta. Acierta 9 para graduarte. Sin límite de tiempo y puedes repetirlo.',
+  'stg.goal.profitWeek': 'Termina una semana con ganancia',
+  'stg.goal.streak': '{of} semanas rentables seguidas con ${spend}+/semana ({n}/{of})',
+  'stg.goal.exam': 'Aprueba el examen final ({pass}/{total})',
+  'stg.goalTitle': 'Meta de la etapa', 'stg.goalProgress': 'Meta {done}/{total}',
+  'stg.newTools': 'Lo que harás aquí', 'stg.letsGo': '¡Vamos!',
+  'stg.up.title': '¡Superaste la etapa {from}!', 'stg.place.title': 'Empiezas en {stage}',
+  'stg.fundUp': 'Ronda de inversión: +{fund}. Tu banco ahora tiene <b>{cash}</b>.',
+  'stg.fundStart': 'Banco inicial: <b>{cash}</b>. Las ganancias suman y las pérdidas restan.',
+  'stg.xp.up': 'Llegaste a {stage}', 'stg.xp.grad': '¡Te graduaste!',
+  'stg.planWeek': 'Planear la próxima semana',
+  'stg.bank': 'Banco', 'stg.bank.hint': 'El efectivo de tu negocio: inversión más todas las ganancias, menos todas las pérdidas. Es dinero de práctica: no se gasta dinero real.',
+  'stg.bank.warn': 'Queda poco', 'stg.bank.danger': 'Casi en quiebra', 'stg.bank.broke': 'Sin efectivo',
+  'stg.bank.warn.say': 'Atención: a tu banco le quedan {cash}. Revisa qué campañas están por debajo del punto de equilibrio y páusalas antes de que se coman más dinero.',
+  'stg.bank.danger.say': '¡Tu banco está casi vacío ({cash})! Pausa a los perdedores ya y no subas presupuestos hasta que vuelvas a ganar.',
+  'stg.bank.plan': 'Este plan podría gastar unos <b>{spend}</b> esta semana, y tu banco tiene <b>{cash}</b>. Pausa a los perdedores o mantén los presupuestos para no quedarte sin dinero.',
+  'stg.rescue.title': 'Te quedaste sin efectivo',
+  'stg.rescue.body': 'Tu banco llegó a {cash}. En la vida real, aquí es donde muchos negocios pequeños cierran. Aquí tienes una segunda oportunidad: te presto {grant} para que sigas aprendiendo.',
+  'stg.rescue.tips': 'Antes de la próxima semana: pausa toda campaña por debajo del ROAS de equilibrio, no subas presupuestos salvo a ganadores claros y renueva los anuncios con frecuencia mayor a 3.',
+  'stg.rescue.ok': 'Acepto los {grant} y sigo', 'stg.rescue.after': '¡Borrón y cuenta nueva! Abramos la revisión semanal y cortemos primero a los perdedores.',
+  'stg.rescue.count': 'Rescates usados: {n}. No pasa nada: todo profesional ha tenido un mal mes.',
+  'stg.graduated': 'Graduación completa',
+  'stg.launch.title': 'Eso podría vaciar tu banco',
+  'stg.launch.body': 'La primera muestra de {days} días de esta campaña podría gastar unos <b>{cost}</b>, y tu banco tiene <b>{cash}</b>. Los profesionales empiezan con poco y escalan lo que funciona. Prueba con unos <b>${safe}/día</b>.',
+  'stg.launch.anyway': 'Lanzar de todos modos', 'stg.launch.lower': 'Bajar el presupuesto',
+  'stg.progress.title': 'Tu camino',
+  'stg.ff': 'Correr 4 semanas', 'stg.ff.hint': 'Aplica las decisiones de esta semana y deja todo corriendo 3 semanas más.',
+  'stg.ff.note': 'Avanzaste {n} semanas. Tus decisiones se aplicaron al inicio; estos números son de la <b>última</b> semana. Revisa la frecuencia: los anuncios se cansan más rápido de lo que crees.',
+  'stg.adv.title': 'Ronda extra', 'stg.adv.progress': 'Pregunta extra {n} de {total} · Vas muy bien, veamos hasta dónde llegas.',
+  'stg.adv.score': 'Ronda extra: {n}/{total}',
+  'stg.adv.q1': 'Duplicas de un día para otro el presupuesto de un anuncio ganador. ¿Qué suele pasar?',
+  'stg.adv.q1.a0': 'Nada cambia', 'stg.adv.q1.a1': 'Vuelve a la fase de aprendizaje y los resultados se vuelven inestables unos días', 'stg.adv.q1.a2': 'Meta te devuelve el gasto extra',
+  'stg.adv.q2': 'El margen de tu producto es 50%. ¿Qué ROAS necesitas para no perder?',
+  'stg.adv.q2.a0': '2x', 'stg.adv.q2.a1': '0.5x', 'stg.adv.q2.a2': '5x',
+  'stg.adv.q3': 'La frecuencia pasa de 4 y el CTR baja semana tras semana. ¿Mejor movimiento?',
+  'stg.adv.q3.a0': 'Subir el presupuesto', 'stg.adv.q3.a1': 'Renovar el creativo', 'stg.adv.q3.a2': 'Reducir el público',
+  'stg.adv.q4': 'Un público similar se crea a partir de…',
+  'stg.adv.q4.a0': 'Cuentas al azar', 'stg.adv.q4.a1': 'Un público de origen, como tus clientes', 'stg.adv.q4.a2': 'Los seguidores de tu competencia',
+  'stg.fork.title': 'Tu camino', 'stg.fork.lead': 'Este es el camino completo, desde tu primer anuncio hasta la certificación. Según tus respuestas, aquí empiezas:',
+  'stg.fork.skipped': 'Este es el camino completo, desde tu primer anuncio hasta la certificación. Empezaremos desde el principio:',
+  'stg.fork.youStart': 'Empiezas en', 'stg.fork.fromStart': 'Prefiero empezar en la Etapa 1', 'stg.fork.go': 'Empezar en {stage}',
+  'stg.fork.testOut': '¡Ronda extra perfecta! También puedes intentar el examen final antes desde la tarjeta de Piper. Si lo apruebas, te gradúas de inmediato.',
+  'stg.place.say': '¡Te doy la bienvenida a {stage}! Te preparé una cuenta pequeña que ya está corriendo. Empieza por leer qué funciona y qué no.',
+  'stg.seed.name': 'Café · {aud}', 'stg.seed.body': 'Café de lotes pequeños, tostado fresco y en tu puerta en 2 días. Tu primera bolsa con envío gratis.',
+  'stg.exam.start': 'Tomar el examen final', 'stg.exam.practice': 'Practicar el examen otra vez', 'stg.exam.testOut': 'Adelántate: intenta el examen final',
+  'stg.exam.title': 'Examen final', 'stg.exam.begin': 'Empezar',
+  'stg.exam.intro': '{total} situaciones como las del examen de compra de medios de Meta. Acierta {pass} para graduarte. Sin cronómetro, y puedes repetirlo cuantas veces quieras. Después de cada intento te explico lo que fallaste.',
+  'stg.exam.progress': 'Pregunta {n} de {total}', 'stg.exam.quit': 'Parar por ahora',
+  'stg.exam.passTitle': '¡Aprobaste otra vez!', 'stg.exam.failTitle': 'Todavía no',
+  'stg.exam.passAgain': 'Sigues en forma. Repasa abajo lo que fallaste.',
+  'stg.exam.failBody': 'Necesitas {pass} para aprobar. Lee las explicaciones de abajo. Cada una es algo que ya practicaste aquí, y puedes repetir el examen enseguida.',
+  'stg.exam.retake': 'Repetir el examen', 'stg.exam.review': 'Repasa lo que fallaste', 'stg.exam.best': 'Mejor puntaje del examen: {s}/{total}',
+  'stg.grad.title': '¡Te graduaste!', 'stg.grad.cert': 'Preparación para la Certificación',
+  'stg.grad.certBody': 'Llevó un negocio desde Proyecto Extra hasta Operador a Escala y aprobó el examen final.',
+  'stg.grad.exam': 'Examen final', 'stg.grad.campaigns': 'Campañas',
+  'stg.grad.next': 'Ya practicaste todo lo que cubre el examen Meta Certified Media Buying Professional. Siguiente paso: reserva el examen real en Meta Blueprint. Piper’s Sandbox te prepara; la certificación oficial la da Meta.',
+  'stg.grad.keep': 'Seguir jugando', 'stg.grad.book': 'Reservar el examen de Meta',
+  'stg.grad.cardTitle': 'Tu preparación para certificarte está completa 🎓',
+  'stg.grad.cardBody': '¡Te graduaste! Sigue manejando tu cuenta para mantenerte en forma, practica el examen otra vez o reserva el real en Meta Blueprint.',
+  'stg.grad.say': '¡LO LOGRASTE! 🎓 De tu primer anuncio a la preparación para certificarte. Estoy muy orgullosa de ti. ¡Ve a reservar ese examen real!',
+  'badge.graduate': '🎓 Graduación',
+
+  'stg.ex.1.q': 'Un conjunto de anuncios nuevo está en fase de aprendizaje. ¿Cuántos eventos de optimización suele necesitar en más o menos una semana para salir del aprendizaje?',
+  'stg.ex.1.o0': '5', 'stg.ex.1.o1': 'Unos 50', 'stg.ex.1.o2': '500', 'stg.ex.1.o3': '5,000',
+  'stg.ex.1.why': 'La entrega suele necesitar unos 50 eventos de optimización en unos 7 días (después del lanzamiento o de una edición importante) para estabilizarse.',
+  'stg.ex.2.q': '¿Qué cambio es más probable que regrese a la fase de aprendizaje a un conjunto de anuncios estable?',
+  'stg.ex.2.o0': 'Subir su presupuesto diario de $50 a $150', 'stg.ex.2.o1': 'Cambiarle el nombre a la campaña', 'stg.ex.2.o2': 'Descargar un reporte', 'stg.ex.2.o3': 'Responder un comentario del anuncio',
+  'stg.ex.2.why': 'Los saltos grandes de presupuesto son ediciones importantes que reinician el aprendizaje. Sube los presupuestos de 20% en 20%.',
+  'stg.ex.3.q': 'El margen de tu producto es 40%. ¿Qué ROAS necesitas solo para no perder?',
+  'stg.ex.3.o0': '1.4x', 'stg.ex.3.o1': '4.0x', 'stg.ex.3.o2': '2.5x', 'stg.ex.3.o3': '0.4x',
+  'stg.ex.3.why': 'ROAS de equilibrio = 1 ÷ margen. 1 ÷ 0.40 = 2.5x.',
+  'stg.ex.4.q': 'Después de 3 semanas, la frecuencia es 4.5, el CTR baja cada semana y el CPA sube. El público y la oferta no han cambiado. ¿Mejor siguiente paso?',
+  'stg.ex.4.o0': 'Duplicar el presupuesto', 'stg.ex.4.o1': 'Reducir el público', 'stg.ex.4.o2': 'Cambiar el objetivo a Reconocimiento', 'stg.ex.4.o3': 'Renovar el creativo con nuevos ángulos e imágenes',
+  'stg.ex.4.why': 'Frecuencia alta con CTR en caída es fatiga creativa clásica: las mismas personas vieron el anuncio demasiadas veces. Un creativo nuevo lo soluciona.',
+  'stg.ex.5.q': 'Una campaña es rentable con $100/día y el cliente quiere escalar. ¿La opción de menor riesgo?',
+  'stg.ex.5.o0': 'Subirla hoy a $500/día', 'stg.ex.5.o1': 'Subirla cerca de 20% cada pocos días, o copiarla a un público nuevo', 'stg.ex.5.o2': 'Cambiar público, creativo y presupuesto a la vez', 'stg.ex.5.o3': 'Pausarla y lanzar una campaña completamente nueva',
+  'stg.ex.5.why': 'Los pasos verticales pequeños evitan reiniciar el aprendizaje, y el escalado horizontal (nuevos públicos) suma alcance sin saturar un solo público.',
+  'stg.ex.6.q': '¿Qué hace el presupuesto de la campaña Advantage (CBO)?',
+  'stg.ex.6.o0': 'Reparte un solo presupuesto entre los conjuntos de anuncios y mueve el gasto hacia los que rinden mejor', 'stg.ex.6.o1': 'Garantiza el mismo gasto a cada conjunto', 'stg.ex.6.o2': 'Baja el CPM 20% automáticamente', 'stg.ex.6.o3': 'Apaga cualquier conjunto que pierda dinero',
+  'stg.ex.6.why': 'Con presupuesto a nivel de campaña, la entrega mueve el dinero en tiempo real hacia los conjuntos con mejores resultados.',
+  'stg.ex.7.q': 'Un conjunto optimizado para Compras solo logra 6 compras por semana y muestra "Aprendizaje limitado". ¿Qué ayuda más?',
+  'stg.ex.7.o0': 'Editar el anuncio todos los días', 'stg.ex.7.o1': 'Dividirlo en más conjuntos', 'stg.ex.7.o2': 'Unir conjuntos, u optimizar para un evento más frecuente como Agregar al carrito', 'stg.ex.7.o3': 'Reducir aún más el público',
+  'stg.ex.7.why': 'Aprendizaje limitado significa que no hay suficientes eventos. Junta el presupuesto en menos conjuntos o elige un evento más frecuente para que el sistema tenga datos.',
+  'stg.ex.8.q': 'El Administrador de anuncios muestra 42 compras, pero la tienda muestra 31. ¿La razón más probable?',
+  'stg.ex.8.o0': 'El píxel está roto, así que hay que pausar todo', 'stg.ex.8.o1': 'Atribución distinta: Meta cuenta conversiones dentro de su ventana (incluidas las de visualización) y la tienda las cuenta de otra forma', 'stg.ex.8.o2': 'Los clientes pidieron reembolsos', 'stg.ex.8.o3': 'Meta cobra por compras falsas',
+  'stg.ex.8.why': 'Cada plataforma usa reglas y ventanas de atribución distintas, así que los números casi nunca coinciden. Compara tendencias y acuerda reglas claras con el cliente.',
+  'stg.ex.9.q': 'Quieres saber si un titular nuevo le gana al actual. ¿La mejor prueba?',
+  'stg.ex.9.o0': 'Cambiar titular, imagen y público a la vez', 'stg.ex.9.o1': 'Lanzar el nuevo, pausar el viejo y comparar semanas', 'stg.ex.9.o2': 'Correr los dos un día y quedarte con el de mayor CTR', 'stg.ex.9.o3': 'Cambiar solo el titular, dividir el público en partes iguales y correrla hasta tener un resultado confiable',
+  'stg.ex.9.why': 'Una prueba A/B limpia cambia una sola variable, divide el público al mismo tiempo y dura lo suficiente para descartar la suerte.',
+  'stg.ex.10.q': 'Un cliente que contrata para un almacén quiere mostrar el anuncio solo a hombres de 18 a 30 años a 5 millas. ¿Qué debes hacer?',
+  'stg.ex.10.o0': 'Usar la categoría de anuncio especial de Empleo, que limita edad, sexo y segmentación detallada', 'stg.ex.10.o1': 'Correrlo normal, es su negocio', 'stg.ex.10.o2': 'Segmentar por el interés "moda para hombres"', 'stg.ex.10.o3': 'Correrlo como Reconocimiento para que no apliquen las reglas',
+  'stg.ex.10.why': 'Los anuncios de empleo, vivienda, crédito y algunos otros deben usar una categoría especial, que limita la segmentación para evitar discriminación.',
+  'stg.ex.11.q': '¿Cuál es el propósito principal de la API de conversiones?',
+  'stg.ex.11.o0': 'Escribir textos de anuncios automáticamente', 'stg.ex.11.o1': 'Bajar el CPM', 'stg.ex.11.o2': 'Enviar eventos de conversión desde tu servidor, para que la medición siga funcionando cuando el navegador bloquea el rastreo', 'stg.ex.11.o3': 'Evitar tener una cuenta publicitaria',
+  'stg.ex.11.why': 'La API de conversiones envía eventos de servidor a servidor, junto con el píxel, para que la medición y la optimización sean más confiables.',
+  'stg.ex.12.q': 'Rechazaron un anuncio con el titular "¿Tienes sobrepeso? Baja 20 libras rápido". ¿La mejor solución?',
+  'stg.ex.12.o0': 'Volver a enviarlo igual hasta que lo aprueben', 'stg.ex.12.o1': 'Reescribirlo sin insinuar rasgos personales ni prometer resultados irreales, p. ej. "Menús sencillos para semanas ocupadas"', 'stg.ex.12.o2': 'Agregar más emojis', 'stg.ex.12.o3': 'Correrlo solo en Historias',
+  'stg.ex.12.why': 'Las políticas no permiten suponer rasgos personales ("¿Tienes sobrepeso?") ni hacer promesas de salud irreales. Habla del beneficio.',
+});
+
+
+// ─── lang-events.js ───
+// ═══════════════════════════════════════════════════════════════════
+// MARKET NEWS — English and Spanish words for events.js.
+// Each event: title, body, lesson; each choice: label, .why (right after
+// choosing) and .after (recap at the top of the week report).
+// ═══════════════════════════════════════════════════════════════════
+Object.assign(LANG_EN, {
+  'mk.news': 'Market news', 'mk.ask': 'What do you do?', 'mk.plan': 'Plan the week',
+  'mk.grade.great': 'Pro move', 'mk.grade.meh': 'It works, but there was a better move', 'mk.grade.bad': 'Ouch, that one costs you',
+  'mk.xp': 'Handled: {title}', 'badge.steady': '🧘 Steady Hands',
+  'ev.mk_rejected': 'Ad rejected', 'ev.mk_pixel': 'Pixel problem', 'ev.mk_blackfriday': 'Black Friday',
+
+  'mk.attribution.title': '"The numbers don\'t match!"',
+  'mk.attribution.body': 'Your business partner messages you: <i>"Ads Manager says 42 purchases last week, but our store only shows 31. Are the ads lying to us?"</i>',
+  'mk.attribution.explain': 'Explain attribution, agree on one source of truth, and compare trends',
+  'mk.attribution.storeOnly': 'Ignore Ads Manager from now on and judge ads only by store sales',
+  'mk.attribution.pauseAll': 'Pause all the ads until the numbers match',
+  'mk.attribution.explain.why': 'Exactly. Meta counts a purchase if someone clicked (or saw) the ad within its attribution window, and the store counts it differently. Neither one is lying. Pick one source for decisions and watch whether both move together.',
+  'mk.attribution.storeOnly.why': "Store sales are real money, so that's not crazy. But the store can't tell you which ad made the sale, so you'd lose the data you need to pick winners. Use both: the store for profit, Ads Manager for comparing ads.",
+  'mk.attribution.pauseAll.why': "The numbers will never match exactly, because the two systems count differently. Pausing everything stops the sales too, and every campaign will have to re-learn when it comes back.",
+  'mk.attribution.explain.after': 'Your partner relaxed once you showed the trend: both numbers rose and fell together. The ads kept selling.',
+  'mk.attribution.storeOnly.after': 'Sales kept coming in, but now it\'s harder to tell which ad deserves the credit.',
+  'mk.attribution.pauseAll.after': "Pausing everything stopped the sales along with the spend. Resume your best campaigns in the weekly review.",
+  'mk.attribution.lesson': '<b>Exam topic: attribution.</b> Platforms and stores use different attribution windows and rules, so their numbers rarely match. Compare trends, not exact totals.',
+
+  'mk.rejected.title': 'Your best ad was rejected',
+  'mk.rejected.body': 'Meta rejected <b>{name}</b> under the <b>Personal attributes</b> policy. The reviewer flagged the primary text: <i>"Feeling sluggish? Your body needs this."</i> It stopped delivering this morning.',
+  'mk.rejected.rewrite': 'Rewrite the text to talk about the product, not the person, and resubmit',
+  'mk.rejected.appeal': 'Request a review and wait, without changing anything',
+  'mk.rejected.duplicate': 'Duplicate the ad and relaunch it unchanged so it slips through',
+  'mk.rejected.rewrite.why': 'Right. "Feeling sluggish? Your body needs this" assumes something about the reader. Talking about the product ("Small-batch coffee for slow mornings") follows the policy. New headline: <b>{headline}</b>. It needs a few days to learn again, but it\'s live.',
+  'mk.rejected.appeal.why': "Reviews are for real mistakes. This one wasn't a mistake: the text really does assume something personal. While you wait, your best ad earns nothing.",
+  'mk.rejected.duplicate.why': 'Duplicates get caught too, and repeated violations can restrict your whole ad account. Your best ad stays dark, and now the account has a strike.',
+  'mk.rejected.rewrite.after': '"{name}" is back with compliant copy. Expect a few bumpy learning days.',
+  'mk.rejected.appeal.after': 'The review upheld the rejection, so "{name}" spent a week dark. Rewrite it next time.',
+  'mk.rejected.duplicate.after': 'The copy was rejected too, so "{name}" spent a week dark. Repeat violations put the whole account at risk.',
+  'mk.rejected.lesson': "<b>Exam topic: ad policies.</b> Don't assert or imply personal traits (health, finances, identity) or make unrealistic claims. Fix the copy instead of fighting the rule.",
+
+  'mk.pixel.title': 'Purchases dropped to almost zero',
+  'mk.pixel.body': "Overnight, Ads Manager shows almost no purchases. Your store still got orders. Your web designer updated the checkout page yesterday.",
+  'mk.pixel.fix': 'Check Events Manager, fix the Pixel on the new checkout, and add the Conversions API as a backup',
+  'mk.pixel.ignore': "Leave it. The ads are still running, so it'll sort itself out",
+  'mk.pixel.pauseAll': 'Pause every campaign: ROAS crashed',
+  'mk.pixel.fix.why': 'Right. The site update removed the Pixel from checkout. Once it\'s fixed, purchases report again, and the Conversions API keeps sending events even when browsers block tracking. Delivery wobbles for a couple of days, then recovers.',
+  'mk.pixel.ignore.why': "Without purchase data, the delivery system is optimizing blind. It can't tell who's buying, so costs per sale climb all week.",
+  'mk.pixel.pauseAll.why': 'ROAS only looked like it crashed, because sales stopped reporting. The real sales were fine. Pausing turns off the money that was actually working.',
+  'mk.pixel.fix.after': 'Tracking fixed. A couple of wobbly days, then purchases reported normally again.',
+  'mk.pixel.ignore.after': 'A full week of optimizing blind: fewer sales for the same money.',
+  'mk.pixel.pauseAll.after': 'Everything paused over a tracking bug. Fix the Pixel, then resume your winners.',
+  'mk.pixel.lesson': '<b>Exam topic: measurement.</b> When results drop suddenly and the store disagrees, check tracking first (Events Manager, Pixel, Conversions API) before touching the ads.',
+
+  'mk.blackfriday.title': 'Black Friday week',
+  'mk.blackfriday.body': "Every brand is advertising this week, so ad costs (CPM) will jump about 60%. But shoppers are in a buying mood, so more of them will buy.",
+  'mk.blackfriday.winners': 'Keep proven winners running with a strong offer, and don\'t make big changes',
+  'mk.blackfriday.doubleAll': 'Double every budget to grab as many sales as possible',
+  'mk.blackfriday.sitOut': 'Cut every budget in half until the expensive week is over',
+  'mk.blackfriday.winners.why': "Pro move. Costs are higher, but so are sales, and your winners already know who buys. Keeping them steady avoids resetting learning in the most expensive week of the year.",
+  'mk.blackfriday.doubleAll.why': 'Doubling sends every campaign back into learning during the priciest week, and pushes them past what their audiences can absorb. Expensive lessons.',
+  'mk.blackfriday.sitOut.why': "Safe, but you'll miss the best buying week of the year. A 50% cut is also a big edit, so campaigns re-learn right when it matters most.",
+  'mk.blackfriday.winners.after': 'Costs rose, sales rose more. Your winners carried the week.',
+  'mk.blackfriday.doubleAll.after': 'Doubled budgets plus a learning reset in the priciest week. Check how much of that money came back.',
+  'mk.blackfriday.sitOut.after': 'You spent less, and sold less in the best shopping week of the year.',
+  'mk.blackfriday.lesson': '<b>Exam topic: auction and budgets.</b> Seasonal demand raises CPMs for everyone. Plan offers and creative ahead of time, scale only proven winners, and avoid big edits mid-peak.',
+});
+
+Object.assign(LANG_ES, {
+  'mk.news': 'Noticias del mercado', 'mk.ask': '¿Qué haces?', 'mk.plan': 'Planear la semana',
+  'mk.grade.great': 'Jugada de profesional', 'mk.grade.meh': 'Funciona, pero había una mejor opción', 'mk.grade.bad': 'Uy, eso te va a costar',
+  'mk.xp': 'Resuelto: {title}', 'badge.steady': '🧘 Pulso Firme',
+  'ev.mk_rejected': 'Anuncio rechazado', 'ev.mk_pixel': 'Problema con el píxel', 'ev.mk_blackfriday': 'Black Friday',
+
+  'mk.attribution.title': '"¡Los números no cuadran!"',
+  'mk.attribution.body': 'Tu socio te escribe: <i>"El Administrador de anuncios dice 42 compras la semana pasada, pero nuestra tienda solo muestra 31. ¿Nos están mintiendo los anuncios?"</i>',
+  'mk.attribution.explain': 'Explicar la atribución, acordar una sola fuente de verdad y comparar tendencias',
+  'mk.attribution.storeOnly': 'Ignorar el Administrador de anuncios y juzgar los anuncios solo por las ventas de la tienda',
+  'mk.attribution.pauseAll': 'Pausar todos los anuncios hasta que los números cuadren',
+  'mk.attribution.explain.why': 'Exacto. Meta cuenta una compra si alguien hizo clic (o vio) el anuncio dentro de su ventana de atribución, y la tienda la cuenta de otra forma. Ninguno miente. Elige una fuente para decidir y revisa que ambas suban y bajen juntas.',
+  'mk.attribution.storeOnly.why': 'Las ventas de la tienda son dinero real, así que no es descabellado. Pero la tienda no te dice qué anuncio hizo la venta, y perderías los datos para elegir ganadores. Usa ambas: la tienda para la ganancia, el Administrador para comparar anuncios.',
+  'mk.attribution.pauseAll.why': 'Los números nunca van a cuadrar exactamente, porque los dos sistemas cuentan distinto. Pausar todo también detiene las ventas, y cada campaña tendrá que volver a aprender.',
+  'mk.attribution.explain.after': 'Tu socio se calmó cuando le mostraste la tendencia: los dos números subieron y bajaron juntos. Los anuncios siguieron vendiendo.',
+  'mk.attribution.storeOnly.after': 'Las ventas siguieron, pero ahora cuesta más saber a qué anuncio darle el crédito.',
+  'mk.attribution.pauseAll.after': 'Pausar todo detuvo las ventas junto con el gasto. Reanuda tus mejores campañas en la revisión semanal.',
+  'mk.attribution.lesson': '<b>Tema del examen: atribución.</b> Las plataformas y las tiendas usan ventanas y reglas de atribución distintas, así que sus números casi nunca coinciden. Compara tendencias, no totales exactos.',
+
+  'mk.rejected.title': 'Rechazaron tu mejor anuncio',
+  'mk.rejected.body': 'Meta rechazó <b>{name}</b> por la política de <b>Atributos personales</b>. El revisor marcó el texto principal: <i>"¿Te sientes sin energía? Tu cuerpo necesita esto."</i> Dejó de publicarse esta mañana.',
+  'mk.rejected.rewrite': 'Reescribir el texto para hablar del producto, no de la persona, y volver a enviarlo',
+  'mk.rejected.appeal': 'Solicitar una revisión y esperar, sin cambiar nada',
+  'mk.rejected.duplicate': 'Duplicar el anuncio y relanzarlo igual para que se cuele',
+  'mk.rejected.rewrite.why': 'Correcto. "¿Te sientes sin energía? Tu cuerpo necesita esto" supone algo sobre quien lo lee. Hablar del producto ("Café de lote pequeño para mañanas tranquilas") cumple la política. Título nuevo: <b>{headline}</b>. Necesita unos días para volver a aprender, pero ya está activo.',
+  'mk.rejected.appeal.why': 'Las revisiones son para errores reales. Este no fue un error: el texto sí supone algo personal. Mientras esperas, tu mejor anuncio no gana nada.',
+  'mk.rejected.duplicate.why': 'Los duplicados también se detectan, y las infracciones repetidas pueden restringir toda tu cuenta publicitaria. Tu mejor anuncio sigue apagado y ahora la cuenta tiene una falta.',
+  'mk.rejected.rewrite.after': '"{name}" volvió con un texto que cumple las reglas. Espera unos días de aprendizaje inestables.',
+  'mk.rejected.appeal.after': 'La revisión confirmó el rechazo, así que "{name}" pasó una semana apagado. La próxima vez, reescríbelo.',
+  'mk.rejected.duplicate.after': 'La copia también fue rechazada, así que "{name}" pasó una semana apagado. Repetir infracciones pone en riesgo toda la cuenta.',
+  'mk.rejected.lesson': '<b>Tema del examen: políticas publicitarias.</b> No afirmes ni insinúes rasgos personales (salud, finanzas, identidad) ni hagas promesas irreales. Corrige el texto en vez de pelear con la regla.',
+
+  'mk.pixel.title': 'Las compras cayeron casi a cero',
+  'mk.pixel.body': 'De un día para otro, el Administrador de anuncios casi no muestra compras. Tu tienda sí recibió pedidos. Tu diseñador web actualizó la página de pago ayer.',
+  'mk.pixel.fix': 'Revisar el Administrador de eventos, arreglar el píxel en la nueva página de pago y agregar la API de conversiones como respaldo',
+  'mk.pixel.ignore': 'Dejarlo así. Los anuncios siguen corriendo, ya se arreglará solo',
+  'mk.pixel.pauseAll': 'Pausar todas las campañas: el ROAS se desplomó',
+  'mk.pixel.fix.why': 'Correcto. La actualización quitó el píxel de la página de pago. Al arreglarlo, las compras vuelven a reportarse, y la API de conversiones sigue enviando eventos aunque el navegador bloquee el rastreo. La entrega se tambalea un par de días y luego se recupera.',
+  'mk.pixel.ignore.why': 'Sin datos de compras, el sistema de entrega optimiza a ciegas. No sabe quién compra, así que el costo por venta sube toda la semana.',
+  'mk.pixel.pauseAll.why': 'El ROAS solo parecía desplomado porque las ventas dejaron de reportarse. Las ventas reales iban bien. Pausar apaga el dinero que sí estaba funcionando.',
+  'mk.pixel.fix.after': 'Rastreo arreglado. Un par de días inestables y luego las compras se reportaron normal.',
+  'mk.pixel.ignore.after': 'Una semana entera optimizando a ciegas: menos ventas por el mismo dinero.',
+  'mk.pixel.pauseAll.after': 'Todo pausado por un error de rastreo. Arregla el píxel y luego reanuda a tus ganadores.',
+  'mk.pixel.lesson': '<b>Tema del examen: medición.</b> Cuando los resultados caen de golpe y la tienda dice otra cosa, revisa primero el rastreo (Administrador de eventos, píxel, API de conversiones) antes de tocar los anuncios.',
+
+  'mk.blackfriday.title': 'Semana de Black Friday',
+  'mk.blackfriday.body': 'Todas las marcas están anunciando esta semana, así que el costo de los anuncios (CPM) subirá cerca de 60%. Pero la gente está en modo compra, así que más personas comprarán.',
+  'mk.blackfriday.winners': 'Mantener activos a los ganadores comprobados con una buena oferta, sin hacer cambios grandes',
+  'mk.blackfriday.doubleAll': 'Duplicar todos los presupuestos para captar todas las ventas posibles',
+  'mk.blackfriday.sitOut': 'Bajar todos los presupuestos a la mitad hasta que pase la semana cara',
+  'mk.blackfriday.winners.why': 'Jugada de profesional. Los costos suben, pero las ventas también, y tus ganadores ya saben quién compra. Mantenerlos estables evita reiniciar el aprendizaje en la semana más cara del año.',
+  'mk.blackfriday.doubleAll.why': 'Duplicar regresa cada campaña al aprendizaje en la semana más cara y las empuja más allá de lo que su público aguanta. Una lección costosa.',
+  'mk.blackfriday.sitOut.why': 'Es seguro, pero te pierdes la mejor semana de compras del año. Un recorte de 50% también es una edición grande, así que las campañas vuelven a aprender justo cuando más importa.',
+  'mk.blackfriday.winners.after': 'Los costos subieron, las ventas subieron más. Tus ganadores sacaron la semana adelante.',
+  'mk.blackfriday.doubleAll.after': 'Presupuestos duplicados más un reinicio del aprendizaje en la semana más cara. Revisa cuánto de ese dinero regresó.',
+  'mk.blackfriday.sitOut.after': 'Gastaste menos y vendiste menos en la mejor semana de compras del año.',
+  'mk.blackfriday.lesson': '<b>Tema del examen: subasta y presupuestos.</b> La demanda de temporada sube el CPM para todos. Prepara ofertas y creativos con tiempo, escala solo a ganadores comprobados y evita cambios grandes en plena temporada.',
+});
 
 
 // ─── library.js ───
@@ -3968,12 +4397,16 @@ function simDay(c) {
   const over = Math.max(0, freqBefore - 1.8);
   const fatCtr = 1 / (1 + 0.25 * over), fatCvr = 1 / (1 + 0.08 * over), fatCpm = 1 + 0.06 * over;
 
-  const spend = c.budget * (0.9 + 0.2 * r(1));
-  const cpm = o.cpm * a.cpm * placeCpm * capCpm * fatCpm * (1.15 - 0.15 * learnP) * (0.88 + 0.24 * r(2));
+  // market news (events.js): a temporary shift in costs or conversions, or a blocked ad
+  const mk = s.market && s.market.days > 0 ? s.market : {};
+  const marketHit = !!mk.days;
+
+  const spend = mk.blocked ? 0 : c.budget * (0.9 + 0.2 * r(1));
+  const cpm = o.cpm * a.cpm * placeCpm * capCpm * fatCpm * (mk.cpm || 1) * (1.15 - 0.15 * learnP) * (0.88 + 0.24 * r(2));
   const impressions = Math.max(0, Math.round(spend / cpm * 1000));
   const ctr = o.ctr * a.ctr * s.quality * fatCtr * (0.85 + 0.15 * learnP) * (0.85 + 0.3 * r(3));
   const clicks = Math.round(impressions * ctr);
-  const cvr = o.cvr * a.cvr * Math.pow(s.quality, 0.3) * capCvr * fatCvr * learnCvr * (0.75 + 0.5 * r(4));
+  const cvr = o.cvr * a.cvr * Math.pow(s.quality, 0.3) * capCvr * fatCvr * learnCvr * (mk.cvr || 1) * (0.75 + 0.5 * r(4));
   const expected = clicks * cvr;
   const conversions = Math.floor(expected) + (r(5) < expected % 1 ? 1 : 0); // fair rounding, no bias
   const revenue = conversions * SIM.aov;
@@ -3981,6 +4414,7 @@ function simDay(c) {
   s.cumImps += impressions;
   const reach = a.pool * (1 - Math.exp(-s.cumImps / a.pool));
   if (s.learnLeft > 0) s.learnLeft--;
+  if (s.market && s.market.days > 0 && --s.market.days === 0) s.market = null;
 
   const d = {
     day, phase, budget: c.budget,
@@ -3989,9 +4423,10 @@ function simDay(c) {
     cpm: Number(cpm.toFixed(2)),
     cpc: clicks ? Number((spend / clicks).toFixed(2)) : 0,
     cpa: conversions ? Number((spend / conversions).toFixed(2)) : 0,
-    roas: Number((revenue / spend).toFixed(2)),
+    roas: spend ? Number((revenue / spend).toFixed(2)) : 0,
     freq: Number((s.cumImps / Math.max(1, reach)).toFixed(2)),
   };
+  if (marketHit) d.market = true;
   if (s.pendingEvent) { d.event = s.pendingEvent; s.pendingEvent = null; }
   c.days.push(d);
   return d;
@@ -4073,9 +4508,9 @@ function windowTotals(c, n, offset) {
   const ds = c.days.slice(start, Math.max(start, end));
   const w = ds.reduce((a, d) => {
     a.spend += d.spend; a.revenue += d.revenue; a.conversions += d.conversions;
-    a.clicks += d.clicks; a.impressions += d.impressions; if (d.phase === 'learning') a.learningDays++;
+    a.clicks += d.clicks; a.impressions += d.impressions; if (d.phase === 'learning') a.learningDays++; if (d.market) a.marketDays++;
     return a;
-  }, { spend: 0, revenue: 0, conversions: 0, clicks: 0, impressions: 0, learningDays: 0 });
+  }, { spend: 0, revenue: 0, conversions: 0, clicks: 0, impressions: 0, learningDays: 0, marketDays: 0 });
   w.days = ds.length;
   w.roas = w.spend ? w.revenue / w.spend : 0;
   w.cpa = w.conversions ? w.spend / w.conversions : null;
@@ -4090,7 +4525,9 @@ function campaignVerdict(c) {
   const w = windowTotals(c, 7);
   if (!w.days || w.learningDays >= 4) return { id: 'learning', w };
   const prev = windowTotals(c, 7, 7);
-  if (w.roas < BREAK_EVEN_ROAS && w.spend >= 60) return { id: 'kill', w };
+  // a bad week caused by market news (broken tracking, Black Friday) doesn't condemn a proven winner
+  const shock = w.marketDays >= 3 && prev.days >= 7 && prev.roas >= BREAK_EVEN_ROAS;
+  if (w.roas < BREAK_EVEN_ROAS && w.spend >= 60 && !shock) return { id: 'kill', w };
   if (w.freq >= 3 && (prev.days < 7 || w.roas <= prev.roas || w.roas < SIM.targetRoas)) return { id: 'refresh', w };
   if (w.roas >= SIM.targetRoas && w.freq < 3) return { id: 'scale', w };
   return { id: 'keep', w };
@@ -5559,6 +5996,13 @@ function freshHeadlineFor(c) {
 }
 
 // ── Run the week ──────────────────────────────────────────────────
+let weeksToRun = 1; // Stage 3+ can fast-forward: the week's decisions, then more weeks on autopilot
+
+function runWeeks(n) {
+  weeksToRun = n;
+  try { runWeek(); } finally { weeksToRun = 1; }
+}
+
 function runWeek() {
   for (const c of state.campaigns) {
     const p = weekPlan[c.id];
@@ -5596,7 +6040,7 @@ function runWeek() {
     rows.push(row);
   });
   created.forEach(k => state.campaigns.unshift(k));
-  state.campaigns.forEach(c => { if (c.status === 'active') simRun(c, 7); });
+  state.campaigns.forEach(c => { if (c.status === 'active') simRun(c, 7 * weeksToRun); });
 
   const after = sumWindows(state.campaigns.filter(c => c.status === 'active'));
   rows.forEach(r => {
@@ -6062,6 +6506,576 @@ function coachIntent(text) {
   if (has(/ what (should|do) i do | next (step|move) | now what | what would you do | que (hago|sigue|debo hacer) | siguiente paso | que harias /)) return 'next';
   return null;
 }
+
+
+// ─── stages.js ───
+// ═══════════════════════════════════════════════════════════════════
+// STAGES — the career ladder. Five business stages, each with a goal, a
+// funding round and new tools. The skill check places people on the ladder,
+// the bank keeps the money real (but forgiving), and the final exam is the
+// finish line: "certification ready".
+// Loaded after journey.js and before onboarding.js (which boots the app).
+// ═══════════════════════════════════════════════════════════════════
+const STAGES = [
+  { n: 1, emoji: '🌱', fund: 1500,  steps: ['launch', 'results', 'decide', 'loser'] },
+  { n: 2, emoji: '🏪', fund: 3000,  steps: ['abtest', 'week', 'scale'], extra: 'profitWeek' },
+  { n: 3, emoji: '📈', fund: 8000,  steps: ['horizontal', 'refresh', 'profit', 'deck'] },
+  { n: 4, emoji: '🚀', fund: 15000, steps: [], extra: 'streak' },
+  { n: 5, emoji: '🎓', fund: 0,     steps: [], extra: 'exam' },
+];
+const STREAK = { weeks: 4, spend: 1500 };  // Stage 4: profitable weeks in a row, at $1,500+ each
+const FAST_FORWARD_STAGE = 3;               // "Run 4 weeks" unlocks here
+const EXAM_PASS = 9;                        // of EXAM.length (75%)
+const BLUEPRINT_URL = 'https://www.facebook.com/business/learn/certification';
+
+// A step skipped by placement counts as done, so placed players don't redo the basics
+JOURNEY.forEach(s => { const done = s.done; s.done = p => (p.skipped || []).includes(s.id) || done(p); });
+
+// ── Stage state ───────────────────────────────────────────────────
+// Players from before stages existed (and fresh resets) get a stage on first render.
+function ensureStage() {
+  const p = state.player;
+  if (p.stage) return;
+  let n = 1;
+  if (p.assessed) while (n < 4 && stageDone(n)) n++;
+  p.stage = n;
+  if (n === 4) p.stage4Day = accountDay();
+  p.bank = { add: STAGES.slice(0, Math.min(n, 4)).reduce((a, s) => a + s.fund, 0), rescues: 0, level: 'ok' };
+  const floor = cushion() * 0.5;
+  if (bankCash() < floor) p.bank.add += floor - bankCash(); // returning players start with breathing room
+}
+function stageOf(n) { return STAGES[n - 1]; }
+function stageName(n) { return t('stg.' + n + '.name'); }
+function cushion() { return stageOf(Math.min(state.player.stage || 1, 4)).fund; }
+function bankCash() { return state.player.bank.add + (state.campaigns.length ? accountTotals().profit : 0); }
+function bankLevel() {
+  const cash = bankCash(), c = cushion();
+  return cash <= 0 ? 'broke' : cash < c * 0.15 ? 'danger' : cash < c * 0.4 ? 'warn' : 'ok';
+}
+
+// The account's age in days (its longest-running campaign)
+function accountDay() { return state.campaigns.reduce((a, c) => Math.max(a, c.days.length), 0); }
+
+// Profitable weeks in a row (most recent first) that spent at least STREAK.spend.
+// Only weeks played since reaching Stage 4 count.
+function profitStreak() {
+  const played = Math.floor((accountDay() - (state.player.stage4Day || 0)) / 7);
+  let n = 0;
+  while (n < Math.min(STREAK.weeks, played)) {
+    const w = accountTotals(7, 7 * n);
+    if (w.spend < STREAK.spend || w.profit <= 0) break;
+    n++;
+  }
+  return n;
+}
+
+function stageGoals(n) {
+  const S = stageOf(n), p = state.player;
+  const items = S.steps.map(id => ({ label: t('j.' + id + '.title'), done: JOURNEY.find(s => s.id === id).done(p) }));
+  if (S.extra === 'profitWeek') items.push({ label: t('stg.goal.profitWeek'), done: !!p.missions.week && state.campaigns.length > 0 && accountTotals(7).profit > 0 });
+  if (S.extra === 'streak') { const k = profitStreak(); items.push({ label: t('stg.goal.streak', { n: k, of: STREAK.weeks, spend: STREAK.spend.toLocaleString() }), done: k >= STREAK.weeks }); }
+  if (S.extra === 'exam') items.push({ label: t('stg.goal.exam', { pass: EXAM_PASS, total: EXAM.length }), done: !!p.examPassed });
+  return items;
+}
+function stageDone(n) { return stageGoals(n).every(g => g.done); }
+
+// ── Watching for stage-ups and money trouble ──────────────────────
+function modalOpen() {
+  return !!(document.getElementById('simpleModal') || document.getElementById('createModal') || document.getElementById('iterOverlay') || document.getElementById('welcome') || tour);
+}
+let _stageCheck = null;
+function queueStageCheck() { clearTimeout(_stageCheck); _stageCheck = setTimeout(checkStage, 300); }
+
+function checkStage() {
+  const p = state.player;
+  if (!p.assessed || modalOpen()) return;
+  ensureStage();
+  const lvl = bankLevel();
+  if (lvl === 'broke') { showRescue(); return; }
+  const order = ['ok', 'warn', 'danger'];
+  if (order.indexOf(lvl) > order.indexOf(p.bank.level || 'ok')) { pipeReact('panic'); pipeSay(t('stg.bank.' + lvl + '.say', { cash: fmtMoney(bankCash()) })); }
+  if (p.bank.level !== lvl) { p.bank.level = lvl; saveState(); }
+  if (p.stage < 5 && stageDone(p.stage)) advanceStage();
+}
+
+const _stageRender = render;
+render = function () { ensureStage(); _stageRender(); queueStageCheck(); };
+const _stageClose = closeSimpleModal;
+closeSimpleModal = function () { _stageClose(); queueStageCheck(); };
+
+function advanceStage() {
+  const p = state.player, from = p.stage;
+  p.stage = from + 1;
+  if (p.stage === 4) p.stage4Day = accountDay();
+  const S = stageOf(p.stage);
+  p.bank.add += S.fund;
+  p.bank.level = 'ok';
+  saveState(); render();
+  stageWelcomeModal(p.stage, 'up', from);
+  Sfx.play('levelup'); showConfetti(); pipeReact('celebrate'); coinRain();
+  awardXP(200, 'stg.xp.up', { stage: stageName(p.stage) });
+}
+
+// Shared by stage-ups and placement: what's new, the funding, and the next goal
+function stageWelcomeModal(n, kind, from) {
+  const S = stageOf(n);
+  const title = kind === 'up' ? t('stg.up.title', { from: stageName(from) }) : t('stg.place.title', { stage: stageName(n) });
+  openSimpleModal(S.emoji + ' ' + title, `
+    <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;">
+      <img src="${PIPER_IMG.r_celebrate}" alt="Piper" style="width:84px;height:84px;border-radius:14px;flex-shrink:0;">
+      <div><div class="stg-kicker">${t('stg.stageOf', { n, total: STAGES.length })}</div><h3 style="margin:2px 0 6px;">${stageName(n)}</h3><p style="line-height:1.55;">${t('stg.' + n + '.story')}</p></div>
+    </div>
+    ${ladderHTML(n)}
+    ${S.fund ? `<div class="alert alert-success"><span>🏦</span><div>${t(kind === 'up' ? 'stg.fundUp' : 'stg.fundStart', { fund: fmtMoney(S.fund), cash: fmtMoney(bankCash()) })}</div></div>` : ''}
+    <div class="stg-new"><b>${t('stg.newTools')}</b><div>${t('stg.' + n + '.unlocks', { weeks: STREAK.weeks })}</div></div>
+    <div class="stg-goal-box"><b>🎯 ${t('stg.goalTitle')}</b>${goalListHTML(n)}</div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="closeSimpleModal(); render()" data-sfx="pop">${t('stg.letsGo')}</button>
+    </div>`, true, true);
+  Voice.speak(title + '. ' + t('stg.' + n + '.story'));
+}
+
+function showRescue() {
+  const p = state.player, cash = bankCash(), grant = Math.round(cushion() * 0.5 - cash);
+  openSimpleModal('🛟 ' + t('stg.rescue.title'), `
+    <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;">
+      <img src="${PIPER_IMG.r_panic}" alt="Piper" style="width:84px;height:84px;border-radius:14px;flex-shrink:0;">
+      <p style="line-height:1.55;">${t('stg.rescue.body', { cash: fmtMoney(cash), grant: fmtMoney(grant) })}</p>
+    </div>
+    <div class="alert alert-info"><span>💡</span><div>${t('stg.rescue.tips')}</div></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="acceptRescue(${grant})" data-sfx="pop">${t('stg.rescue.ok', { grant: fmtMoney(grant) })}</button>
+    </div>`, true, true);
+  pipeReact('panic');
+}
+function acceptRescue(grant) {
+  const b = state.player.bank;
+  b.add += grant; b.rescues = (b.rescues || 0) + 1; b.level = 'ok';
+  saveState(); closeSimpleModal(); render();
+  pipeSay(t('stg.rescue.after'));
+}
+
+// ── Pieces of UI ──────────────────────────────────────────────────
+function ladderHTML(cur) {
+  return `<div class="stg-ladder">${STAGES.map(S => `<div class="stg-rung ${S.n < cur ? 'done' : S.n === cur ? 'cur' : ''}"><span>${S.n < cur ? '✓' : S.emoji}</span><small>${stageName(S.n)}</small></div>`).join('<div class="stg-link"></div>')}</div>`;
+}
+function goalListHTML(n) {
+  return `<ul class="stg-goals">${stageGoals(n).map(g => `<li class="${g.done ? 'ok' : ''}">${g.done ? '✓' : '○'} ${g.label}</li>`).join('')}</ul>`;
+}
+
+function stageStripHTML() {
+  const p = state.player; if (!p.assessed) return '';
+  const lvl = bankLevel(), goals = stageGoals(p.stage), done = goals.filter(g => g.done).length;
+  return `
+    <div class="stg-strip" data-say-text="${esc(t('stg.stageOf', { n: p.stage, total: STAGES.length }) + '. ' + stageName(p.stage))}">
+      <button class="stg-strip-main" onclick="showProgress()" data-sfx="click">
+        <span class="stg-emoji">${stageOf(p.stage).emoji}</span>
+        <span><span class="stg-kicker">${t('stg.stageOf', { n: p.stage, total: STAGES.length })}</span><b>${stageName(p.stage)}</b></span>
+        <span class="stg-dots">${STAGES.map(S => `<i class="${S.n < p.stage ? 'done' : S.n === p.stage ? 'cur' : ''}"></i>`).join('')}</span>
+        <span class="stg-goalmini">${p.graduated ? '🎓 ' + t('stg.graduated') : t('stg.goalProgress', { done, total: goals.length })}</span>
+      </button>
+      <div class="stg-bank b-${lvl}" title="${esc(t('stg.bank.hint'))}">🏦 ${t('stg.bank')} <b>${fmtMoney(bankCash())}</b>${lvl !== 'ok' ? `<span>${t('stg.bank.' + lvl)}</span>` : ''}</div>
+    </div>`;
+}
+
+function stageGoalCardHTML() {
+  const p = state.player, n = p.stage, face = `<img class="pc-cat" src="${PIPER_IMG.face}" alt="Piper">`;
+  let primary;
+  if (p.graduated) primary = `<a class="btn btn-primary" href="${BLUEPRINT_URL}" target="_blank" rel="noopener">${t('stg.grad.book')}</a><button class="btn btn-secondary" onclick="startExam()" data-sfx="click">${t('stg.exam.practice')}</button>`;
+  else if (n === 5) primary = `<button class="btn btn-primary guide-pulse" onclick="startExam()" data-sfx="pop">📝 ${t('stg.exam.start')}</button>`;
+  else primary = `<button class="btn btn-primary" onclick="openWeeklyReview()" data-sfx="pop">📅 ${t('stg.planWeek')}</button>`
+    + (n === 4 && p.testOut ? `<button class="btn btn-secondary" onclick="startExam()" data-sfx="click">📝 ${t('stg.exam.testOut')}</button>` : '');
+  const title = p.graduated ? t('stg.grad.cardTitle') : t('stg.' + n + '.goalName');
+  const body = p.graduated ? t('stg.grad.cardBody') : t('stg.' + n + '.goalBody', { spend: STREAK.spend.toLocaleString(), weeks: STREAK.weeks });
+  return `
+    <div class="piper-coach" id="piperCoach" data-say-text="${esc(title + '. ' + body.replace(/<[^>]+>/g, ''))}">
+      <div class="pc-top">${face}
+        <div class="pc-head"><div class="pc-step">🎯 ${t('stg.goalTitle')}</div><div class="pc-title">${title}</div></div>
+      </div>
+      <div class="pc-body">${body}</div>
+      ${p.graduated ? '' : goalListHTML(n)}
+      <div class="pc-cta">${primary}<button class="btn btn-secondary" onclick="openDecisionGuide()" data-sfx="click">🧭 ${t('coach.guide')}</button></div>
+    </div>`;
+}
+
+// Piper's card follows the journey while the next step belongs to this stage, then the stage goal
+const _stageCoach = renderCoachCard;
+renderCoachCard = function () {
+  ensureStage();
+  const step = currentStep(), n = state.player.stage;
+  const inStage = step && stageOf(n).steps.includes(step.id);
+  return stageStripHTML() + (inStage || !state.player.assessed ? _stageCoach() : stageGoalCardHTML());
+};
+
+// The top-bar widget shows the stage; the bar fills with this stage's goal
+currentLevel = function () { ensureStage(); const n = state.player.stage; return { min: n, key: 'stg.' + n + '.name', next: n < 5 ? n + 1 : null }; };
+updateXPWidget = function () {
+  const lv = document.getElementById('xpLevel'), num = document.getElementById('xpNum'), fill = document.getElementById('xpFill');
+  if (!lv) return;
+  ensureStage();
+  const n = state.player.stage, goals = stageGoals(n);
+  lv.textContent = stageOf(n).emoji + ' ' + stageName(n);
+  num.textContent = state.player.xp + ' XP';
+  fill.style.width = (state.player.graduated ? 100 : Math.round(goals.filter(g => g.done).length / goals.length * 100)) + '%';
+};
+
+showProgress = function () {
+  ensureStage();
+  const p = state.player, earned = p.badges.map(b => t('badge.' + b)).join(' · ') || t('progress.noBadges');
+  const all = state.campaigns.length ? accountTotals() : { spend: 0, revenue: 0, profit: 0 };
+  openSimpleModal('🗺️ ' + t('stg.progress.title'), `
+    ${ladderHTML(p.stage)}
+    <div class="stg-goal-box"><b>${stageOf(p.stage).emoji} ${stageName(p.stage)} · 🎯 ${t('stg.goalTitle')}</b>${goalListHTML(p.stage)}</div>
+    <div class="wk-kpis" style="margin:12px 0;">
+      <div class="wk-kpi"><span>🏦 ${t('stg.bank')}</span><b>${fmtMoney(bankCash())}</b></div>
+      <div class="wk-kpi"><span>${t('pnl.revenue')}</span><b>${fmtMoney(all.revenue)}</b></div>
+      <div class="wk-kpi"><span>${t('pnl.profit')}</span><b class="${all.profit >= 0 ? 'good' : 'bad'}">${fmtMoney(all.profit)}</b></div>
+      <div class="wk-kpi"><span>XP</span><b>${p.xp}</b></div>
+    </div>
+    <p style="margin-bottom:6px;"><b>${t('progress.track')}</b> ${p.track ? t('track.' + p.track) : t('progress.notAssessed')} · <button class="link-btn" style="color:#0866FF;padding:0;" onclick="closeSimpleModal();showSkillIntro()">${t('progress.takeQuiz')}</button></p>
+    <p style="margin-bottom:6px;"><b>${t('progress.badges')}</b> ${earned}</p>
+    ${p.bank.rescues ? `<p class="form-hint">${t('stg.rescue.count', { n: p.bank.rescues })}</p>` : ''}
+    ${p.examBest != null ? `<p class="form-hint">${t('stg.exam.best', { s: p.examBest, total: EXAM.length })}</p>` : ''}
+  `, false, true);
+};
+
+// Weekly review: warn before the money runs out, and offer the fast-forward from Stage 3
+const _stageWR = renderWeeklyReview;
+renderWeeklyReview = function (entering) {
+  _stageWR(entering);
+  const foot = document.querySelector('#simpleModal .wr-footer'); if (!foot) return;
+  const est = plannedSpend().spend, cash = bankCash();
+  if (est > cash) foot.insertAdjacentHTML('beforebegin', `<div class="alert alert-warning"><span>⚠️</span><div>${t('stg.bank.plan', { spend: fmtMoney(est), cash: fmtMoney(cash) })}</div></div>`);
+  if (state.player.stage >= FAST_FORWARD_STAGE) foot.insertAdjacentHTML('beforeend', `<button class="btn btn-secondary" id="btnRun4" onclick="runWeeks(4)" data-sfx="next" title="${esc(t('stg.ff.hint'))}">⏩ ${t('stg.ff')}</button>`);
+};
+// Launch: if the 14-day sample could cost more than the bank holds, say so first
+const _stageLaunch = launchCampaign;
+launchCampaign = function (confirmed) {
+  const cost = state.draft.budget * SIM.firstFlight, cash = bankCash();
+  if (confirmed !== true && state.player.assessed && cost > cash) {
+    openSimpleModal('⚠️ ' + t('stg.launch.title'), `
+      <p style="line-height:1.55;margin-bottom:12px;">${t('stg.launch.body', { cost: fmtMoney(cost), days: SIM.firstFlight, cash: fmtMoney(cash), safe: Math.max(5, Math.floor(Math.max(0, cash) * 0.5 / SIM.firstFlight)) })}</p>
+      <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="closeSimpleModal(); launchCampaign(true)">${t('stg.launch.anyway')}</button>
+        <button class="btn btn-primary" onclick="closeSimpleModal()" data-sfx="click">${t('stg.launch.lower')}</button>
+      </div>`, true, true);
+    return;
+  }
+  _stageLaunch();
+};
+
+const _stageReport = showWeekReport;
+showWeekReport = function (rows, before, after, challenge) {
+  const weeks = weeksToRun;
+  _stageReport(rows, before, after, challenge);
+  const body = document.querySelector('#simpleModal .modal-body');
+  if (weeks > 1 && body) body.insertAdjacentHTML('afterbegin', `<div class="alert alert-info"><span>⏩</span><div>${t('stg.ff.note', { n: weeks })}</div></div>`);
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// PLACEMENT — the skill check forks into the ladder. Strong scores get a
+// harder bonus round that can place them as high as Stage 4.
+// ═══════════════════════════════════════════════════════════════════
+const ADV_LEN = 4;
+const ADV_RIGHT = [1, 0, 1, 1]; // index of the right answer for each bonus question
+
+finishAssessment = function () {
+  if (quiz.score >= 12) { quiz.adv = { i: 0, right: 0 }; renderAdvStep(); return; }
+  showPlacement(quiz.score <= 6 ? 1 : 2, quiz.score);
+};
+skipAssessment = function () { showPlacement(1, undefined, true); };
+
+function renderAdvStep() {
+  const a = quiz.adv, n = a.i + 1;
+  if (!a.order || a.order.n !== n) a.order = { n, idx: [0, 1, 2].sort(() => Math.random() - 0.5) };
+  const opts = [0, 1, 2].map(k => t(`stg.adv.q${n}.a${k}`));
+  openSimpleModal('🔥 ' + t('stg.adv.title'), `
+    <div class="quiz-bar"><div style="width:${(a.i / ADV_LEN) * 100}%"></div></div>
+    <div class="quiz-progress">${t('stg.adv.progress', { n, total: ADV_LEN })}</div>
+    <div class="quiz-q">${t('stg.adv.q' + n)}</div>
+    ${a.order.idx.map(idx => `<button class="quiz-opt" onclick="answerAdv(${idx})" data-sfx="click" data-say-text="${esc(opts[idx])}">${opts[idx]}</button>`).join('')}
+  `, true);
+  Voice.speak(t('stg.adv.q' + n) + ' ' + a.order.idx.map((idx, i) => (i + 1) + '. ' + opts[idx] + '.').join(' '));
+}
+function answerAdv(idx) {
+  const a = quiz.adv;
+  if (idx === ADV_RIGHT[a.i]) a.right++;
+  a.i++;
+  if (a.i < ADV_LEN) { renderAdvStep(); return; }
+  const n = a.right <= 1 ? 2 : a.right <= 3 ? 3 : 4;
+  showPlacement(n, quiz.score, false, a.right);
+}
+
+// The fork: show the whole ladder and where they land; they can always start lower
+function showPlacement(n, score, skipped, adv) {
+  const scoreLine = skipped ? '' : `<div class="form-hint" style="text-align:center;">${t('track.score', { s: score })}${adv != null ? ' · ' + t('stg.adv.score', { n: adv, total: ADV_LEN }) : ''}</div>`;
+  openSimpleModal('🗺️ ' + t('stg.fork.title'), `
+    <p style="margin-bottom:10px;line-height:1.55;">${t(skipped ? 'stg.fork.skipped' : 'stg.fork.lead')}</p>
+    ${ladderHTML(n)}
+    ${scoreLine}
+    <div class="stg-pick">
+      <div class="stg-kicker">${t('stg.fork.youStart')}</div>
+      <h3>${stageOf(n).emoji} ${stageName(n)}</h3>
+      <p>${t('stg.' + n + '.who')}</p>
+    </div>
+    ${n === 4 && adv === ADV_LEN ? `<div class="alert alert-success"><span>🎓</span><div>${t('stg.fork.testOut')}</div></div>` : ''}
+    <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      ${n > 1 ? `<button class="btn btn-secondary" onclick="placeAt(1)" data-sfx="click">${t('stg.fork.fromStart')}</button>` : ''}
+      <button class="btn btn-primary" onclick="placeAt(${n}, ${n === 4 && adv === ADV_LEN})" data-sfx="pop">${t('stg.fork.go', { stage: stageName(n) })}</button>
+    </div>`, true, true);
+  Sfx.play('success');
+}
+
+function placeAt(n, testOut) {
+  const p = state.player;
+  ensureStage();
+  if (n === 1 || p.stage >= n) {
+    // Stage 1 (or a retake that doesn't move them up) keeps the original beginner-friendly path screen
+    assignTrack(n === 1 ? 'beginner' : p.track || 'intermediate');
+    return;
+  }
+  p.track = n === 2 ? 'intermediate' : 'expert';
+  p.assessed = true;
+  p.skipped = STAGES.slice(0, n - 1).reduce((a, S) => a.concat(S.steps), []);
+  p.stage = n;
+  p.testOut = !!testOut;
+  if (!state.campaigns.length) seedAccount(n);
+  if (n === 4) p.stage4Day = accountDay();
+  p.bank = { add: STAGES.slice(0, n).reduce((a, S) => a + S.fund, 0), rescues: 0, level: 'ok' };
+  if (bankCash() < cushion() * 0.6) p.bank.add += cushion() * 0.6 - bankCash();
+  saveState(); render();
+  stageWelcomeModal(n, 'place');
+  pipeReact('coach');
+  awardXP(25, 'xp.quiz');
+  pipeSay(t('stg.place.say', { stage: stageName(n) }));
+}
+
+// Placed players inherit a small running account, so there's something to manage on day one
+function seedAccount(n) {
+  const mk = (aud, budget, h, days) => newCampaign({
+    name: t('stg.seed.name', { aud: t('aud.' + aud) }), objective: 'sales', audience: aud, budget,
+    creative: { headline: t('ideas.coffee.' + h), body: t('stg.seed.body'), cta: 'shop', libId: 'coffee' } }, null, days);
+  const list = n === 2 ? [mk('broad', 40, 1, 21), mk('interest', 30, 3, 21)]
+    : n === 3 ? [mk('broad', 60, 1, 28), mk('lookalike', 45, 2, 28), mk('interest', 30, 3, 21)]
+    : [mk('broad', 90, 1, 35), mk('lookalike', 60, 2, 35), mk('interest', 40, 3, 28)];
+  state.campaigns = list;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FINAL EXAM — scenario questions in the style of Meta's media-buying exam.
+// Options are shuffled; the result screen explains every miss.
+// ═══════════════════════════════════════════════════════════════════
+const EXAM = [1, 0, 2, 3, 1, 0, 2, 1, 3, 0, 2, 1]; // index of the right option (o0–o3) for questions 1–12
+let exam = null;
+
+function startExam() {
+  closeSimpleModal();
+  exam = { i: 0, picks: [], order: EXAM.map(() => [0, 1, 2, 3].sort(() => Math.random() - 0.5)) };
+  openSimpleModal('📝 ' + t('stg.exam.title'), `
+    <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;">
+      <img src="${PIPER_IMG.r_coach}" alt="Piper" style="width:84px;height:84px;border-radius:14px;flex-shrink:0;">
+      <p style="line-height:1.55;">${t('stg.exam.intro', { total: EXAM.length, pass: EXAM_PASS })}</p>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="closeSimpleModal()">${t('later')}</button>
+      <button class="btn btn-primary" onclick="renderExamStep()" data-sfx="next">${t('stg.exam.begin')}</button>
+    </div>`, false, true);
+}
+function renderExamStep() {
+  const n = exam.i + 1, k = 'stg.ex.' + n;
+  openSimpleModal('📝 ' + t('stg.exam.title'), `
+    <div class="quiz-bar"><div style="width:${(exam.i / EXAM.length) * 100}%"></div></div>
+    <div class="quiz-progress">${t('stg.exam.progress', { n, total: EXAM.length })}</div>
+    <div class="quiz-q">${t(k + '.q')}</div>
+    ${exam.order[exam.i].map(o => `<button class="quiz-opt" onclick="answerExam(${o})" data-sfx="click" data-say-text="${esc(t(k + '.o' + o))}">${t(k + '.o' + o)}</button>`).join('')}
+    <div style="text-align:right;margin-top:10px;"><button class="link-btn" onclick="closeSimpleModal()">${t('stg.exam.quit')}</button></div>
+  `, true);
+  Voice.speak(t(k + '.q'));
+}
+function answerExam(o) {
+  exam.picks.push(o);
+  exam.i++;
+  if (exam.i < EXAM.length) renderExamStep(); else finishExam();
+}
+function finishExam() {
+  const p = state.player;
+  const missed = EXAM.map((right, i) => ({ i, right, ok: exam.picks[i] === right })).filter(x => !x.ok);
+  const score = EXAM.length - missed.length, passed = score >= EXAM_PASS;
+  p.examBest = Math.max(p.examBest || 0, score);
+  const firstPass = passed && !p.examPassed;
+  if (passed) p.examPassed = true;
+  saveState();
+  if (firstPass) { graduate(score, missed); return; }
+  openSimpleModal((passed ? '🎉 ' : '📚 ') + t(passed ? 'stg.exam.passTitle' : 'stg.exam.failTitle'), `
+    <div class="stg-score ${passed ? 'pass' : ''}">${score} / ${EXAM.length}</div>
+    <p style="margin-bottom:10px;line-height:1.55;">${t(passed ? 'stg.exam.passAgain' : 'stg.exam.failBody', { pass: EXAM_PASS })}</p>
+    ${missedHTML(missed)}
+    <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      <button class="btn btn-secondary" onclick="closeSimpleModal()">${t('close')}</button>
+      <button class="btn btn-primary" onclick="startExam()" data-sfx="pop">${t('stg.exam.retake')}</button>
+    </div>`, false, true, 'wide');
+  pipeReact(passed ? 'celebrate' : 'coach');
+}
+function missedHTML(missed) {
+  if (!missed.length) return '';
+  return `<div class="wr-section">${t('stg.exam.review')}</div>` + missed.map(m => {
+    const k = 'stg.ex.' + (m.i + 1);
+    return `<div class="stg-miss"><b>${t(k + '.q')}</b><div>✅ ${t(k + '.o' + m.right)}</div><div class="form-hint">${t(k + '.why')}</div></div>`;
+  }).join('');
+}
+
+// The finish line
+function graduate(score, missed) {
+  const p = state.player;
+  p.graduated = true;
+  p.stage = 5;
+  earnBadge('graduate');
+  saveState(); render();
+  const all = accountTotals();
+  const date = new Date().toLocaleDateString(lang() === 'es' ? 'es' : 'en', { year: 'numeric', month: 'long', day: 'numeric' });
+  openSimpleModal('🎓 ' + t('stg.grad.title'), `
+    <div class="stg-cert">
+      ${yarnLogo('stg-cert-logo')}
+      <div class="stg-kicker">Piper's Sandbox</div>
+      <h2>${t('stg.grad.cert')}</h2>
+      <p>${t('stg.grad.certBody')}</p>
+      <div class="stg-cert-stats">
+        <div><b>${score}/${EXAM.length}</b><span>${t('stg.grad.exam')}</span></div>
+        <div><b>${state.campaigns.length}</b><span>${t('stg.grad.campaigns')}</span></div>
+        <div><b>${fmtMoney(all.revenue)}</b><span>${t('pnl.revenue')}</span></div>
+      </div>
+      <div class="form-hint">${date}</div>
+    </div>
+    <p style="margin:12px 0;line-height:1.55;">${t('stg.grad.next')}</p>
+    ${missedHTML(missed)}
+    <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      <button class="btn btn-secondary" onclick="closeSimpleModal()">${t('stg.grad.keep')}</button>
+      <a class="btn btn-primary" href="${BLUEPRINT_URL}" target="_blank" rel="noopener">${t('stg.grad.book')}</a>
+    </div>`, false, true, 'wide');
+  Sfx.play('levelup'); showConfetti(); pipeReact('celebrate'); coinRain();
+  awardXP(500, 'stg.xp.grad');
+  pipeSay(t('stg.grad.say'));
+}
+
+
+// ─── events.js ───
+// ═══════════════════════════════════════════════════════════════════
+// MARKET NEWS — from Stage 2, every few weeks something happens TO the
+// account before the weekly review: a client questions the numbers, an ad
+// gets rejected, the Pixel breaks, Black Friday hits. The learner picks a
+// response, it changes the coming days (engine.js reads c.sim.market), and
+// the week report says how it played out.
+// Loaded after stages.js and before onboarding.js.
+// ═══════════════════════════════════════════════════════════════════
+const MARKET_ORDER = ['attribution', 'rejected', 'pixel', 'blackfriday']; // first-time order
+const MARKET_STAGE = { attribution: 2, rejected: 2, pixel: 3, blackfriday: 3 };
+
+const activeCampaigns = () => state.campaigns.filter(c => c.status === 'active');
+function setMarket(c, m, id) { c.sim.market = Object.assign({ days: 7 }, m); c.sim.pendingEvent = { type: 'mk_' + id }; }
+function pauseAllActive() { activeCampaigns().forEach(c => { c.status = 'paused'; c.sim.pausedWeeks = 1; }); }
+// The rejected ad is the account's best performer, which is what makes it hurt
+function bestActive() { return activeCampaigns().sort((a, b) => windowTotals(b, 7).roas - windowTotals(a, 7).roas)[0]; }
+
+// Each choice: how good it is, and what it does to the coming days
+const MARKET = {
+  attribution: { img: 'r_coach', choices: {
+    explain:    { grade: 'great', apply: () => {} },
+    storeOnly:  { grade: 'meh',   apply: () => {} },
+    pauseAll:   { grade: 'bad',   apply: pauseAllActive },
+  } },
+  rejected: { img: 'r_panic', target: true, choices: {
+    rewrite:    { grade: 'great', apply: c => simRefresh(c, freshHeadlineFor(c)) },
+    appeal:     { grade: 'meh',   apply: c => setMarket(c, { blocked: true }, 'rejected') },
+    duplicate:  { grade: 'bad',   apply: c => setMarket(c, { blocked: true }, 'rejected') },
+  } },
+  pixel: { img: 'r_panic', choices: {
+    fix:        { grade: 'great', apply: () => activeCampaigns().forEach(c => setMarket(c, { cvr: 0.85, days: 3 }, 'pixel')) },
+    ignore:     { grade: 'bad',   apply: () => activeCampaigns().forEach(c => setMarket(c, { cvr: 0.6 }, 'pixel')) },
+    pauseAll:   { grade: 'bad',   apply: pauseAllActive },
+  } },
+  blackfriday: { img: 'r_celebrate', choices: {
+    winners:    { grade: 'great', apply: () => activeCampaigns().forEach(c => setMarket(c, { cpm: 1.6, cvr: 1.45 }, 'blackfriday')) },
+    doubleAll:  { grade: 'bad',   apply: () => activeCampaigns().forEach(c => { simChangeBudget(c, c.budget * 2); setMarket(c, { cpm: 1.6, cvr: 1.45 }, 'blackfriday'); }) },
+    sitOut:     { grade: 'meh',   apply: () => activeCampaigns().forEach(c => { simChangeBudget(c, c.budget * 0.5); setMarket(c, { cpm: 1.6, cvr: 1.45 }, 'blackfriday'); }) },
+  } },
+};
+
+// ── When news happens ─────────────────────────────────────────────
+function marketState() {
+  const p = state.player;
+  if (!p.market) p.market = { weeks: 0, nextAt: 1, seen: [], pending: null };
+  return p.market;
+}
+function pickMarketEvent() {
+  const p = state.player, m = marketState();
+  if (!p.assessed || (p.stage || 1) < 2 || m.weeks < m.nextAt || !activeCampaigns().length) return null;
+  const pool = MARKET_ORDER.filter(id => p.stage >= MARKET_STAGE[id]);
+  return pool.find(id => !m.seen.includes(id)) || pool[Math.floor(Math.random() * pool.length)];
+}
+
+const _marketOpenWR = openWeeklyReview;
+openWeeklyReview = function (preset) {
+  const id = pickMarketEvent();
+  if (id) { showMarketEvent(id, preset); return; }
+  _marketOpenWR(preset);
+};
+
+// ── The news card ─────────────────────────────────────────────────
+function showMarketEvent(id, preset) {
+  const ev = MARKET[id], c = ev.target ? bestActive() : null;
+  const vars = { name: c ? esc(c.name) : '', headline: c ? esc(c.creative.headline) : '' };
+  const ids = Object.keys(ev.choices).sort(() => Math.random() - 0.5);
+  openSimpleModal('📰 ' + t('mk.news'), `
+    <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;">
+      <img src="${PIPER_IMG[ev.img]}" alt="Piper" style="width:84px;height:84px;border-radius:14px;flex-shrink:0;">
+      <div><h3 style="margin-bottom:6px;">${t('mk.' + id + '.title')}</h3><p style="line-height:1.55;">${t('mk.' + id + '.body', vars)}</p></div>
+    </div>
+    <div class="quiz-q">${t('mk.ask')}</div>
+    ${ids.map(k => `<button class="quiz-opt" onclick="chooseMarket('${id}','${k}','${c ? c.id : ''}', ${esc(JSON.stringify(preset || null))})" data-sfx="click">${t('mk.' + id + '.' + k)}</button>`).join('')}
+  `, true, true);
+  pipeReact(ev.img === 'r_panic' ? 'panic' : 'coach');
+  Voice.speak(t('mk.' + id + '.title') + '. ' + t('mk.' + id + '.body', vars).replace(/<[^>]+>/g, ''));
+}
+
+function chooseMarket(id, choice, cid, preset) {
+  const ev = MARKET[id], ch = ev.choices[choice], m = marketState(), p = state.player;
+  const c = cid ? state.campaigns.find(x => x.id === cid) : null;
+  const vars = { name: c ? esc(c.name) : '', headline: c ? esc(c.creative.headline) : '' };
+  ch.apply(c);
+  const first = !m.seen.includes(id);
+  if (first) m.seen.push(id);
+  m.nextAt = m.weeks + 2 + Math.floor(Math.random() * 2); // the next news comes in 2–3 weeks
+  m.pending = { id, choice, grade: ch.grade, name: vars.name };
+  if (c && choice === 'rewrite') vars.headline = esc(c.creative.headline);
+  saveState(); render();
+  openSimpleModal(GRADE_ICON[ch.grade] + ' ' + t('mk.grade.' + ch.grade), `
+    <div class="wk-row g-${ch.grade}" style="margin-bottom:12px;"><div class="wk-icon">${GRADE_ICON[ch.grade]}</div>
+      <div class="wk-main"><div class="wk-title"><b>${t('mk.' + id + '.' + choice)}</b></div><div class="wk-coach">${t('mk.' + id + '.' + choice + '.why', vars)}</div></div></div>
+    <div class="alert alert-info"><span>📝</span><div>${t('mk.' + id + '.lesson')}</div></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="closeSimpleModal(); openWeeklyReviewNow(${esc(JSON.stringify(preset || null))})" data-sfx="pop">📅 ${t('mk.plan')}</button>
+    </div>`, true, true);
+  if (ch.grade === 'great') {
+    pipeReact('celebrate');
+    if (first) { awardXP(50, 'mk.xp', { title: t('mk.' + id + '.title') }); earnBadge('steady'); }
+  } else pipeReact(ch.grade === 'bad' ? 'grumpy' : 'coach');
+}
+function openWeeklyReviewNow(preset) { _marketOpenWR(preset || undefined); }
+
+// ── Counting weeks, and the recap at the top of the week report ───
+const _marketReport = showWeekReport;
+showWeekReport = function (rows, before, after, challenge) {
+  const m = marketState(), pend = m.pending;
+  m.weeks += weeksToRun;
+  m.pending = null;
+  saveState();
+  _marketReport(rows, before, after, challenge);
+  const body = document.querySelector('#simpleModal .modal-body');
+  if (pend && body) body.insertAdjacentHTML('afterbegin', `
+    <div class="wk-row g-${pend.grade}" style="margin-bottom:12px;"><div class="wk-icon">📰</div>
+      <div class="wk-main"><div class="wk-title"><b>${t('mk.' + pend.id + '.title')}</b> · ${GRADE_ICON[pend.grade]} ${t('mk.' + pend.id + '.' + pend.choice)}</div>
+      <div class="wk-coach">${t('mk.' + pend.id + '.' + pend.choice + '.after', { name: pend.name })}</div></div></div>`);
+};
 
 
 // ─── onboarding.js ───
