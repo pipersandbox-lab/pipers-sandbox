@@ -1,4 +1,7 @@
-// Gates the whole site behind personal access codes.
+// Gates the whole site behind personal access codes, when switched on.
+//
+// The gate is OFF by default so the simulator is open to everyone (for early
+// reviews and testing). Set REQUIRE_ACCESS=true in Netlify to lock it again.
 //
 // A code looks like MARIA-20271231-1a2b3c4d5e6f:
 //   name     who the code belongs to (letters/digits)
@@ -9,6 +12,7 @@
 // netlify/functions/stripe-webhook.mjs after a purchase.
 //
 // Environment variables (Netlify > Site configuration > Environment variables):
+//   REQUIRE_ACCESS  "true" turns the lock on; anything else leaves the site open
 //   ACCESS_SECRET   long random string used to sign codes (required)
 //   ADMIN_PASSWORD  password for the /admin code generator (required for /admin)
 //   REVOKED_CODES   comma-separated names or full codes to block (optional)
@@ -319,6 +323,15 @@ ${result}
 
 export default async (request, context) => {
   const url = new URL(request.url);
+
+  if (env("REQUIRE_ACCESS").toLowerCase() !== "true") {
+    // Open site: old claim and unlock links just go to the simulator.
+    if (url.pathname === "/claim" || url.pathname === "/unlock") {
+      return new Response(null, { status: 303, headers: { location: "/", "cache-control": "no-store" } });
+    }
+    return context.next();
+  }
+
   const secret = env("ACCESS_SECRET");
   if (!secret) {
     return page("Not set up", "<h1>Almost ready</h1><p>Set the ACCESS_SECRET environment variable in Netlify, then redeploy.</p>", 503);

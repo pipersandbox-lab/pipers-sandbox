@@ -2,6 +2,10 @@
 
 Meta Ads simulator. Pages live in `public/`; every page is locked behind a personal access code by `netlify/edge-functions/access-gate.js`. Buyers get their code by email after paying, via `netlify/functions/stripe-webhook.mjs`.
 
+## Open or locked
+
+The simulator is **open to everyone by default**, so early users can try it and leave reviews. To lock it behind purchase access again, add the Netlify environment variable `REQUIRE_ACCESS` with the value `true` and redeploy. Everything below only applies while it is locked.
+
 ## One-time setup on Netlify
 
 The access check runs on Netlify's servers, which drag-and-drop deploys can't do, so the site must deploy from this GitHub repo.
